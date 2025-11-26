@@ -1,4 +1,4 @@
-import cluster from 'node:cluster';
+import * as cluster from 'node:cluster';
 import path from 'path';
 
 /**
@@ -11,11 +11,38 @@ export const isMainCluster =
   Number.parseInt(process.env.NODE_APP_INSTANCE, 10) === 0;
 
 /**
+ * Cluster 模块兼容类型
+ *
+ * @description 定义 cluster 模块的类型接口，用于兼容不同版本的 Node.js
+ * - Node.js 16+: 使用 isPrimary 属性
+ * - Node.js < 16: 使用 isMaster 属性（已废弃）
+ *
+ * @internal 此类型用于解决 TypeScript 类型定义与运行时版本的兼容性问题
+ */
+interface ClusterModule {
+  /** Node.js 16+ 的主进程标识 */
+  isPrimary?: boolean;
+  /** Node.js < 16 的主进程标识（已废弃，但需要兼容） */
+  isMaster?: boolean;
+}
+
+/**
  * 是否为主进程
  *
  * @description 判断当前进程是否为主进程（集群主进程或主集群实例）
+ *
+ * @remarks
+ * 此函数需要兼容不同版本的 Node.js：
+ * - Node.js 16+ 使用 `cluster.isPrimary`
+ * - Node.js < 16 使用 `cluster.isMaster`（已废弃）
+ * 由于 TypeScript 类型定义可能不包含 `isMaster`，需要使用类型断言来访问
+ *
+ * @returns 如果当前进程为主进程则返回 true，否则返回 false
  */
-export const isMainProcess = cluster.isPrimary || isMainCluster;
+export const isMainProcess =
+  ((cluster as unknown as ClusterModule).isPrimary ??
+    (cluster as unknown as ClusterModule).isMaster) ||
+  isMainCluster;
 
 /**
  * 是否为开发环境
