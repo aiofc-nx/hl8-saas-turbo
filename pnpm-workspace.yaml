@@ -4,6 +4,8 @@ packages:
 - libs/common/*
 - libs/modules/*
 - libs/core/*
+- libs/infra/*
+- libs/shared/*
 - packages/*
 onlyBuiltDependencies:
 - '@nestjs/core'

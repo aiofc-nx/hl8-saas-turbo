@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
+  "author": {
+    "name": "HL8",
+    "email": "hl8@hl8.com",
+    "url": "https://hl8.com"
+  },
   "scripts": {
     "add:iam-api": "pnpm add --filter=iam-api",
     "add:main": "pnpm add -w",
