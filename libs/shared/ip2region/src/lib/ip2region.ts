@@ -1,5 +1,5 @@
 // https://github.com/lionsoul2014/ip2region/blob/master/binding/nodejs/index.js
-import fs from 'fs';
+import * as fs from 'fs';
 
 const VectorIndexSize = 8;
 const VectorIndexCols = 256;

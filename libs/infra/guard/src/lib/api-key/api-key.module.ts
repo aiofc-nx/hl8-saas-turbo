@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
 import {
   ComplexApiKeyServiceToken,
@@ -58,6 +59,11 @@ import { SimpleApiKeyService } from './services/simple-api-key.service';
  */
 @Global()
 @Module({
+  imports: [
+    // 导入 ConfigModule 以确保 security 配置可用
+    // 虽然 ConfigModule 是全局的，但显式导入可以确保依赖解析顺序正确
+    ConfigModule,
+  ],
   providers: [
     {
       provide: SimpleApiKeyServiceToken,

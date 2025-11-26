@@ -1,5 +1,5 @@
 import * as cluster from 'node:cluster';
-import path from 'path';
+import * as path from 'path';
 
 /**
  * 是否为主集群实例
@@ -166,7 +166,8 @@ export function getAppName(): string {
  * ```typescript
  * const configPath = getConfigPath('database.json');
  * // 开发环境: 'apps/base-system/src/resources/database.json'
- * // 生产环境: 'dist/apps/base-system/src/resources/database.json'
+ * // 生产环境: 'dist/resources/database.json' (从应用目录运行)
+ * // 或: 'apps/base-system/dist/resources/database.json' (从根目录运行)
  * ```
  */
 export function getConfigPath(filename: string): string {
@@ -175,8 +176,24 @@ export function getConfigPath(filename: string): string {
   const resourcePath = path.join('src', 'resources', filename);
 
   if (isDevEnvironment) {
+    // 开发环境：从源码目录读取
     return path.join(basePath, 'apps', appName, resourcePath);
   } else {
-    return path.join(basePath, 'dist', 'apps', appName, resourcePath);
+    // 生产环境：资源文件被复制到 dist/resources/
+    // 如果从应用目录运行（如 apps/fastify-api），使用 dist/resources
+    // 如果从根目录运行，使用 dist/apps/appName/src/resources
+    const distResourcePath = path.join(basePath, 'dist', 'resources', filename);
+    const distAppResourcePath = path.join(
+      basePath,
+      'dist',
+      'apps',
+      appName,
+      resourcePath,
+    );
+
+    // 检查当前工作目录是否在应用目录内（如 apps/fastify-api）
+    // 如果是，优先使用 dist/resources；否则使用 dist/apps/appName/src/resources
+    const isInAppDir = basePath.endsWith(path.join('apps', appName));
+    return isInAppDir ? distResourcePath : distAppResourcePath;
   }
 }
