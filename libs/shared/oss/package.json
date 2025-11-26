@@ -1,11 +1,11 @@
 {
-  "name": "@hl8/ip2region",
+  "name": "@hl8/oss",
   "version": "1.0.0",
-  "description": "IP2Region module for NestJS applications",
+  "description": "OSS module for NestJS applications",
   "keywords": [
     "nestjs",
-    "ip2region",
-    "nestjs-ip2region"
+    "oss",
+    "nestjs-oss"
   ],
   "exports": {
     ".": {
@@ -29,9 +29,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@hl8/utils": "workspace:*",
     "@nestjs/common": "11.1.9",
-    "@nestjs/config": "^4.0.2"
+    "@nestjs/config": "^4.0.2",
+    "ali-oss": "^6.23.0"
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
@@ -46,6 +46,7 @@
     "globals": "^16.5.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "engines": {
