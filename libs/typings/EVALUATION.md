@@ -40,7 +40,7 @@
 - ✅ 使用中文注释
 - ✅ TypeScript 配置符合 NodeNext 规范
 - ✅ package.json 配置正确（exports 字段支持 ESM 和 CommonJS）
-- ✅ 依赖管理清晰（仅依赖 fastify 和 ulid）
+- ✅ 依赖管理清晰（无运行时依赖，纯类型定义库）
 
 ### 6. 测试覆盖完整 ✅（新增）
 

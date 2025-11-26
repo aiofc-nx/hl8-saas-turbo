@@ -1,11 +1,11 @@
 {
-  "name": "@hl8/typings",
+  "name": "@hl8/errors",
   "version": "1.0.0",
-  "description": "Typings module for NestJS applications",
+  "description": "Errors module for NestJS applications",
   "keywords": [
-    "typings",
-    "nestjs-typings",
-    "typings-module"
+    "errors",
+    "nestjs-errors",
+    "errors-module"
   ],
   "exports": {
     ".": {
@@ -28,6 +28,10 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "type-check": "tsc --noEmit"
   },
+  "dependencies": {
+    "fastify": "^5.6.2",
+    "ulid": "^3.0.1"
+  },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
     "@repo/eslint-config": "workspace:*",
@@ -40,6 +44,7 @@
     "globals": "^16.5.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "engines": {

@@ -1,5 +1,5 @@
 export default {
-  displayName: '@hl8/ip2region',
+  displayName: '@hl8/errors',
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
   rootDir: '.',
@@ -32,8 +32,8 @@ export default {
     ],
   },
   moduleFileExtensions: ['ts', 'js', 'mjs'],
-  roots: ['<rootDir>/src'],
-  coverageDirectory: '../../../coverage/libs/ip2region',
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  coverageDirectory: '../../coverage/libs/errors',
   testMatch: ['**/*.spec.ts'],
   passWithNoTests: true,
 };

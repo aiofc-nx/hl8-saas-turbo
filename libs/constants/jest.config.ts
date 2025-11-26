@@ -1,5 +1,5 @@
 export default {
-  displayName: '@hl8/ip2region',
+  displayName: '@hl8/constants',
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
   rootDir: '.',
@@ -7,7 +7,7 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  transformIgnorePatterns: ['node_modules/(?!(@repo|@nestjs)/)'],
+  transformIgnorePatterns: ['node_modules/(?!(@hl8|@nestjs)/)'],
   transform: {
     '^.+\\.ts$': [
       'ts-jest',
@@ -33,7 +33,7 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'mjs'],
   roots: ['<rootDir>/src'],
-  coverageDirectory: '../../../coverage/libs/ip2region',
+  coverageDirectory: '../../coverage/libs/constants',
   testMatch: ['**/*.spec.ts'],
   passWithNoTests: true,
 };

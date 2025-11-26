@@ -34,7 +34,7 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'mjs'],
   roots: ['<rootDir>/src'],
-  coverageDirectory: '../../coverage/libs/oss',
+  coverageDirectory: '../../../coverage/libs/oss',
   testMatch: ['**/*.spec.ts'],
   passWithNoTests: true,
 };
