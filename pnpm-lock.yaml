@@ -1105,51 +1105,21 @@ importers:
       '@hl8/config':
         specifier: workspace:*
         version: link:../../config
-      '@hl8/constants':
-        specifier: workspace:*
-        version: link:../../constants
       '@hl8/typings':
         specifier: workspace:*
         version: link:../../typings
-      '@hl8/utils':
-        specifier: workspace:*
-        version: link:../../utils
       '@nestjs/common':
         specifier: 11.1.9
         version: 11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/config':
-        specifier: ^4.0.2
-        version: 4.0.2(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(rxjs@7.8.2)
-      '@nestjs/core':
-        specifier: 11.1.9
-        version: 11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/event-emitter':
-        specifier: 3.0.1
-        version: 3.0.1(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))
       '@nestjs/passport':
         specifier: ^11.0.5
         version: 11.0.5(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(passport@0.7.0)
-      '@nestjs/swagger':
-        specifier: 11.2.3
-        version: 11.2.3(@fastify/static@8.3.0)(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.9(@nestjs/common@11.1.9(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)
-      chalk:
-        specifier: ^5.6.2
-        version: 5.6.2
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
       class-validator:
         specifier: 0.14.2
         version: 0.14.2
-      gradient-string:
-        specifier: ^3.0.0
-        version: 3.0.0
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
-      lodash.merge:
-        specifier: ^4.6.2
-        version: 4.6.2
       passport-jwt:
         specifier: ^4.0.1
         version: 4.0.1
@@ -1166,18 +1136,9 @@ importers:
       '@repo/ts-config':
         specifier: workspace:*
         version: link:../../../packages/ts-config
-      '@types/debug':
-        specifier: ^4.1.12
-        version: 4.1.12
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
-      '@types/lodash.merge':
-        specifier: ^4.6.9
-        version: 4.6.9
       '@types/node':
         specifier: 24.10.1
         version: 24.10.1
