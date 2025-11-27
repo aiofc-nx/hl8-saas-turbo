@@ -24,12 +24,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@hl8/casbin": "workspace:*",
     "@hl8/config": "workspace:*",
     "@hl8/ip2region": "workspace:*",
     "@hl8/mikro-orm-nestjs": "workspace:*",
     "@hl8/oss": "workspace:*",
     "@hl8/utils": "workspace:*",
     "@keyv/redis": "^5.1.4",
+    "@mikro-orm/postgresql": "^6.6.0",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "11.1.9",

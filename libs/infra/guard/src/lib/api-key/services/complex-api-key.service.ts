@@ -8,7 +8,7 @@ import type { ConfigType } from '@nestjs/config';
 import CryptoJS from 'crypto-js';
 import type { Cluster, Redis } from 'ioredis';
 
-import { SecurityConfig, securityRegToken } from '@hl8/config';
+import { SecurityConfig } from '@hl8/config';
 import { CacheConstant } from '@hl8/constants';
 import { RedisUtility } from '@hl8/redis';
 
@@ -81,7 +81,7 @@ export class ComplexApiKeyService implements OnModuleInit, IApiKeyService {
    * @param securityConfig - 安全配置，包含时间戳偏差和 Nonce TTL 等配置项
    */
   constructor(
-    @Inject(securityRegToken)
+    @Inject(SecurityConfig.KEY)
     private readonly securityConfig: ConfigType<typeof SecurityConfig>,
   ) {
     this.redisService = RedisUtility.instance;

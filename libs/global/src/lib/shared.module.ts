@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { HttpModule } from '@nestjs/axios';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -7,6 +8,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import * as yaml from 'js-yaml';
 
+import { CasbinRule } from '@hl8/casbin';
 import { Ip2regionModule } from '@hl8/ip2region';
 import { MikroOrmModule } from '@hl8/mikro-orm-nestjs';
 import { OssModule } from '@hl8/oss';
@@ -128,21 +130,66 @@ interface IIp2regionConfig {
         const dbName = process.env.DB_NAME || 'hl8-platform';
         const dbSsl = process.env.DB_SSL === 'true';
 
+        // 根据是否有编译后的文件来决定使用哪个路径
+        // 如果运行的是编译后的代码（dist/main.js），使用 entities；否则使用 entitiesTs
+        // 检查主模块路径来判断运行环境
+        const isProduction =
+          process.env.NODE_ENV === 'production' ||
+          (require.main && require.main.filename.includes('/dist/'));
+
+        // 获取项目根目录
+        // 通过检查主模块路径来确定项目根目录
+        // 如果主模块路径包含 /apps/，则项目根目录是 apps 的父目录
+        // 否则使用当前工作目录
+        const cwd = process.cwd();
+        let projectRoot = cwd;
+
+        if (require.main) {
+          const mainPath = require.main.filename;
+          // 从主模块路径提取项目根目录
+          // 例如：/path/to/project/apps/fastify-api/dist/main.js -> /path/to/project
+          const appsMatch = mainPath.match(/(.+)[/\\]apps[/\\]/);
+          if (appsMatch) {
+            projectRoot = appsMatch[1];
+          } else {
+            // 如果不在 apps 目录下，尝试从 libs 目录提取
+            const libsMatch = mainPath.match(/(.+)[/\\]libs[/\\]/);
+            if (libsMatch) {
+              projectRoot = libsMatch[1];
+            }
+          }
+        } else {
+          // 如果没有主模块，检查当前工作目录
+          if (cwd.includes('/apps/') || cwd.includes('\\apps\\')) {
+            // 从 apps 目录向上查找项目根目录
+            const parts = cwd.split(/[/\\]/);
+            const appsIndex = parts.findIndex((p) => p === 'apps');
+            if (appsIndex > 0) {
+              projectRoot = parts.slice(0, appsIndex).join('/');
+            }
+          }
+        }
+
         return {
-          type: 'postgresql',
+          driver: PostgreSqlDriver,
           host: dbHost,
           port: dbPort,
           user: dbUsername,
           password: dbPassword,
           dbName: dbName,
-          entities: ['dist/**/*.entity.js'],
-          entitiesTs: ['src/**/*.entity.ts'],
+          // 实体：直接导入实体类，避免 glob 模式导致的重复匹配问题
+          // 这样可以确保每个实体只被注册一次
+          entities: [CasbinRule],
           migrations: {
             path: 'dist/migrations',
             pathTs: 'src/migrations',
             glob: '!(*.d).{js,ts}',
           },
-          autoLoadEntities: true,
+          // 禁用 autoLoadEntities，使用明确的路径配置
+          autoLoadEntities: false,
+          // 允许使用全局 EntityManager 实例进行上下文特定的操作
+          // 这在某些场景下是必要的，例如在应用启动时初始化 Casbin 适配器
+          allowGlobalContext: true,
           driverOptions: dbSsl
             ? {
                 connection: {
@@ -172,6 +219,6 @@ interface IIp2regionConfig {
     }),
     CacheManagerModule,
   ],
-  exports: [HttpModule, CacheManagerModule, MikroOrmModule],
+  exports: [HttpModule, CacheManagerModule],
 })
 export class SharedModule {}
