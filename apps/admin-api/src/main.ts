@@ -185,5 +185,14 @@ async function bootstrap() {
     logger.log(`[${prefix + pid}] Server running on ${url}`);
   });
 }
-
+/**
+ * 启动应用
+ *
+ * 初始化并启动 NestJS 应用，包括：
+ * - 初始化 Redis 客户端连接
+ * - 创建 NestJS 应用实例（基于 Fastify）
+ * - 配置全局中间件（CORS、验证管道、Swagger 文档等）
+ * - 注册 Fastify 插件（压缩、CSRF 保护等）
+ * - 启动 HTTP 服务器
+ */
 bootstrap();

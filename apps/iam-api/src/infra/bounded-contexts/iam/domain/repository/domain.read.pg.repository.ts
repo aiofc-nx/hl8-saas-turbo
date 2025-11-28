@@ -8,19 +8,30 @@ import { PageDomainsQuery } from '@/lib/bounded-contexts/iam/domain/queries/page
 import { PaginationResult } from '@hl8/rest';
 
 /**
- * Domain 读取仓储实现
+ * 域读取仓储实现
  *
- * @description 使用 MikroORM EntityManager 实现 Domain 数据的读取操作
+ * @description
+ * 使用 MikroORM EntityManager 实现域数据的读取操作。
+ * 该实现遵循端口适配器模式，实现了 DomainReadRepoPort 接口。
+ *
+ * @implements {DomainReadRepoPort}
  */
 @Injectable()
 export class DomainReadRepository implements DomainReadRepoPort {
+  /**
+   * 构造函数
+   *
+   * @param em - MikroORM 实体管理器，用于数据库操作
+   */
   constructor(private readonly em: EntityManager) {}
 
   /**
-   * 根据 ID 获取 Domain
+   * 根据 ID 获取域
    *
-   * @param id - Domain ID
-   * @returns Domain 属性或 null
+   * @description 从数据库中查询指定 ID 的域信息
+   *
+   * @param id - 域的唯一标识符
+   * @returns 返回域属性对象，如果不存在则返回 null
    */
   async getDomainById(id: string): Promise<Readonly<DomainProperties> | null> {
     const domain = await this.em.findOne('SysDomain', {
@@ -30,10 +41,14 @@ export class DomainReadRepository implements DomainReadRepoPort {
   }
 
   /**
-   * 分页查询 Domain
+   * 分页查询域
    *
-   * @param query - 分页查询参数
-   * @returns 分页结果
+   * @description
+   * 根据查询条件分页查询域列表，支持按名称和状态筛选。
+   * 结果按创建时间倒序排列。
+   *
+   * @param query - 分页查询参数，包含页码、页大小、名称、状态等筛选条件
+   * @returns 返回分页结果，包含域列表和分页信息
    */
   async pageDomains(
     query: PageDomainsQuery,
@@ -63,10 +78,12 @@ export class DomainReadRepository implements DomainReadRepoPort {
   }
 
   /**
-   * 根据代码获取 Domain
+   * 根据代码获取域
    *
-   * @param code - Domain 代码
-   * @returns Domain 属性或 null
+   * @description 从数据库中查询指定代码的域信息。域代码是域的唯一标识符。
+   *
+   * @param code - 域的唯一代码
+   * @returns 返回域属性对象，如果不存在则返回 null
    */
   async getDomainByCode(
     code: string,

@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * 令牌必需属性类型
+ *
+ * @description 定义令牌的必需属性，所有字段都是必需的
+ */
 export type TokensEssentialProperties = Readonly<
   Required<{
     accessToken: string;
@@ -17,12 +22,22 @@ export type TokensEssentialProperties = Readonly<
   }>
 >;
 
+/**
+ * 令牌可选属性类型
+ *
+ * @description 定义令牌的可选属性
+ */
 export type TokensOptionalProperties = Readonly<
   Partial<{
     port: number | null;
   }>
 >;
 
+/**
+ * 令牌属性类型
+ *
+ * @description 令牌的完整属性类型，包含必需属性和可选属性
+ */
 export type TokensProperties = TokensEssentialProperties &
   TokensOptionalProperties;
 

@@ -701,6 +701,257 @@ describe('AuthZService', () => {
         );
       });
     });
+
+    describe('getAllNamedSubjects', () => {
+      it('应该返回命名策略中的所有主体', async () => {
+        const expectedSubjects = ['alice', 'bob'];
+        mockEnforcer.getAllNamedSubjects.mockResolvedValue(expectedSubjects);
+
+        const result = await service.getAllNamedSubjects('p2');
+
+        expect(result).toEqual(expectedSubjects);
+        expect(mockEnforcer.getAllNamedSubjects).toHaveBeenCalledWith('p2');
+      });
+    });
+
+    describe('getAllNamedObjects', () => {
+      it('应该返回命名策略中的所有对象', async () => {
+        const expectedObjects = ['data1', 'data2'];
+        mockEnforcer.getAllNamedObjects.mockResolvedValue(expectedObjects);
+
+        const result = await service.getAllNamedObjects('p2');
+
+        expect(result).toEqual(expectedObjects);
+        expect(mockEnforcer.getAllNamedObjects).toHaveBeenCalledWith('p2');
+      });
+    });
+
+    describe('getAllNamedActions', () => {
+      it('应该返回命名策略中的所有动作', async () => {
+        const expectedActions = ['read', 'write'];
+        mockEnforcer.getAllNamedActions.mockResolvedValue(expectedActions);
+
+        const result = await service.getAllNamedActions('p2');
+
+        expect(result).toEqual(expectedActions);
+        expect(mockEnforcer.getAllNamedActions).toHaveBeenCalledWith('p2');
+      });
+    });
+
+    describe('getAllNamedRoles', () => {
+      it('应该返回命名策略中的所有角色', async () => {
+        const expectedRoles = ['admin', 'user'];
+        mockEnforcer.getAllNamedRoles.mockResolvedValue(expectedRoles);
+
+        const result = await service.getAllNamedRoles('g2');
+
+        expect(result).toEqual(expectedRoles);
+        expect(mockEnforcer.getAllNamedRoles).toHaveBeenCalledWith('g2');
+      });
+    });
+
+    describe('getFilteredPolicy', () => {
+      it('应该返回过滤后的策略规则', async () => {
+        const expectedPolicy = [['alice', 'data1', 'read']];
+        mockEnforcer.getFilteredPolicy.mockResolvedValue(expectedPolicy);
+
+        const result = await service.getFilteredPolicy(0, 'alice');
+
+        expect(result).toEqual(expectedPolicy);
+        expect(mockEnforcer.getFilteredPolicy).toHaveBeenCalledWith(0, 'alice');
+      });
+
+      it('应该支持多个过滤值', async () => {
+        const expectedPolicy = [['alice', 'data1', 'read']];
+        mockEnforcer.getFilteredPolicy.mockResolvedValue(expectedPolicy);
+
+        const result = await service.getFilteredPolicy(0, 'alice', 'data1');
+
+        expect(result).toEqual(expectedPolicy);
+        expect(mockEnforcer.getFilteredPolicy).toHaveBeenCalledWith(
+          0,
+          'alice',
+          'data1',
+        );
+      });
+    });
+
+    describe('getNamedPolicy', () => {
+      it('应该返回命名策略中的所有规则', async () => {
+        const expectedPolicy = [
+          ['alice', 'data1', 'read'],
+          ['bob', 'data2', 'write'],
+        ];
+        mockEnforcer.getNamedPolicy.mockResolvedValue(expectedPolicy);
+
+        const result = await service.getNamedPolicy('p2');
+
+        expect(result).toEqual(expectedPolicy);
+        expect(mockEnforcer.getNamedPolicy).toHaveBeenCalledWith('p2');
+      });
+    });
+
+    describe('getFilteredNamedPolicy', () => {
+      it('应该返回命名策略中过滤后的规则', async () => {
+        const expectedPolicy = [['alice', 'data1', 'read']];
+        mockEnforcer.getFilteredNamedPolicy.mockResolvedValue(expectedPolicy);
+
+        const result = await service.getFilteredNamedPolicy('p2', 0, 'alice');
+
+        expect(result).toEqual(expectedPolicy);
+        expect(mockEnforcer.getFilteredNamedPolicy).toHaveBeenCalledWith(
+          'p2',
+          0,
+          'alice',
+        );
+      });
+    });
+
+    describe('hasNamedPolicy', () => {
+      it('应该检查命名策略规则是否存在', async () => {
+        mockEnforcer.hasNamedPolicy.mockResolvedValue(true);
+
+        const result = await service.hasNamedPolicy(
+          'p2',
+          'alice',
+          'data1',
+          'read',
+        );
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.hasNamedPolicy).toHaveBeenCalledWith(
+          'p2',
+          'alice',
+          'data1',
+          'read',
+        );
+      });
+    });
+
+    describe('addNamedPolicy', () => {
+      it('应该添加命名策略规则', async () => {
+        mockEnforcer.addNamedPolicy.mockResolvedValue(true);
+
+        const result = await service.addNamedPolicy(
+          'p2',
+          'alice',
+          'data1',
+          'read',
+        );
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.addNamedPolicy).toHaveBeenCalledWith(
+          'p2',
+          'alice',
+          'data1',
+          'read',
+        );
+      });
+    });
+
+    describe('addNamedPolicies', () => {
+      it('应该批量添加命名策略规则', async () => {
+        const rules = [
+          ['alice', 'data1', 'read'],
+          ['bob', 'data2', 'write'],
+        ];
+        mockEnforcer.addNamedPolicies.mockResolvedValue(true);
+
+        const result = await service.addNamedPolicies('p2', rules);
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.addNamedPolicies).toHaveBeenCalledWith('p2', rules);
+      });
+    });
+
+    describe('updateNamedPolicy', () => {
+      it('应该更新命名策略规则', async () => {
+        const oldRule = ['alice', 'data1', 'read'];
+        const newRule = ['alice', 'data1', 'write'];
+        mockEnforcer.updateNamedPolicy.mockResolvedValue(true);
+
+        const result = await service.updateNamedPolicy('p2', oldRule, newRule);
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.updateNamedPolicy).toHaveBeenCalledWith(
+          'p2',
+          oldRule,
+          newRule,
+        );
+      });
+    });
+
+    describe('removeNamedPolicy', () => {
+      it('应该删除命名策略规则', async () => {
+        mockEnforcer.removeNamedPolicy.mockResolvedValue(true);
+
+        const result = await service.removeNamedPolicy(
+          'p2',
+          'alice',
+          'data1',
+          'read',
+        );
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.removeNamedPolicy).toHaveBeenCalledWith(
+          'p2',
+          'alice',
+          'data1',
+          'read',
+        );
+      });
+    });
+
+    describe('removeNamedPolicies', () => {
+      it('应该批量删除命名策略规则', async () => {
+        const rules = [
+          ['alice', 'data1', 'read'],
+          ['bob', 'data2', 'write'],
+        ];
+        mockEnforcer.removeNamedPolicies.mockResolvedValue(true);
+
+        const result = await service.removeNamedPolicies('p2', rules);
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.removeNamedPolicies).toHaveBeenCalledWith(
+          'p2',
+          rules,
+        );
+      });
+    });
+
+    describe('removeFilteredPolicy', () => {
+      it('应该删除过滤后的策略规则', async () => {
+        mockEnforcer.removeFilteredPolicy.mockResolvedValue(true);
+
+        const result = await service.removeFilteredPolicy(0, 'alice');
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.removeFilteredPolicy).toHaveBeenCalledWith(
+          0,
+          'alice',
+        );
+      });
+    });
+
+    describe('removeFilteredNamedPolicy', () => {
+      it('应该删除命名策略中过滤后的规则', async () => {
+        mockEnforcer.removeFilteredNamedPolicy.mockResolvedValue(true);
+
+        const result = await service.removeFilteredNamedPolicy(
+          'p2',
+          0,
+          'alice',
+        );
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.removeFilteredNamedPolicy).toHaveBeenCalledWith(
+          'p2',
+          0,
+          'alice',
+        );
+      });
+    });
   });
 
   describe('角色继承 API', () => {
@@ -771,6 +1022,233 @@ describe('AuthZService', () => {
 
         expect(result).toBe(true);
         expect(mockEnforcer.updateGroupingPolicy).toHaveBeenCalledWith(
+          oldRule,
+          newRule,
+        );
+      });
+    });
+
+    describe('getFilteredGroupingPolicy', () => {
+      it('应该返回过滤后的角色继承规则', async () => {
+        const expectedPolicy = [['alice', 'admin']];
+        mockEnforcer.getFilteredGroupingPolicy.mockResolvedValue(
+          expectedPolicy,
+        );
+
+        const result = await service.getFilteredGroupingPolicy(0, 'alice');
+
+        expect(result).toEqual(expectedPolicy);
+        expect(mockEnforcer.getFilteredGroupingPolicy).toHaveBeenCalledWith(
+          0,
+          'alice',
+        );
+      });
+    });
+
+    describe('getNamedGroupingPolicy', () => {
+      it('应该返回命名策略中的所有角色继承规则', async () => {
+        const expectedPolicy = [
+          ['alice', 'admin'],
+          ['bob', 'user'],
+        ];
+        mockEnforcer.getNamedGroupingPolicy.mockResolvedValue(expectedPolicy);
+
+        const result = await service.getNamedGroupingPolicy('g2');
+
+        expect(result).toEqual(expectedPolicy);
+        expect(mockEnforcer.getNamedGroupingPolicy).toHaveBeenCalledWith('g2');
+      });
+    });
+
+    describe('getFilteredNamedGroupingPolicy', () => {
+      it('应该返回命名策略中过滤后的角色继承规则', async () => {
+        const expectedPolicy = [['alice', 'admin']];
+        mockEnforcer.getFilteredNamedGroupingPolicy.mockResolvedValue(
+          expectedPolicy,
+        );
+
+        const result = await service.getFilteredNamedGroupingPolicy(
+          'g2',
+          0,
+          'alice',
+        );
+
+        expect(result).toEqual(expectedPolicy);
+        expect(
+          mockEnforcer.getFilteredNamedGroupingPolicy,
+        ).toHaveBeenCalledWith('g2', 0, 'alice');
+      });
+    });
+
+    describe('hasNamedGroupingPolicy', () => {
+      it('应该检查命名角色继承规则是否存在', async () => {
+        mockEnforcer.hasNamedGroupingPolicy.mockResolvedValue(true);
+
+        const result = await service.hasNamedGroupingPolicy(
+          'g2',
+          'alice',
+          'admin',
+        );
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.hasNamedGroupingPolicy).toHaveBeenCalledWith(
+          'g2',
+          'alice',
+          'admin',
+        );
+      });
+    });
+
+    describe('addGroupingPolicies', () => {
+      it('应该批量添加角色继承规则', async () => {
+        const rules = [
+          ['alice', 'admin'],
+          ['bob', 'user'],
+        ];
+        mockEnforcer.addGroupingPolicies.mockResolvedValue(true);
+
+        const result = await service.addGroupingPolicies(rules);
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.addGroupingPolicies).toHaveBeenCalledWith(rules);
+      });
+    });
+
+    describe('addNamedGroupingPolicy', () => {
+      it('应该添加命名角色继承规则', async () => {
+        mockEnforcer.addNamedGroupingPolicy.mockResolvedValue(true);
+
+        const result = await service.addNamedGroupingPolicy(
+          'g2',
+          'alice',
+          'admin',
+        );
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.addNamedGroupingPolicy).toHaveBeenCalledWith(
+          'g2',
+          'alice',
+          'admin',
+        );
+      });
+    });
+
+    describe('addNamedGroupingPolicies', () => {
+      it('应该批量添加命名角色继承规则', async () => {
+        const rules = [
+          ['alice', 'admin'],
+          ['bob', 'user'],
+        ];
+        mockEnforcer.addNamedGroupingPolicies.mockResolvedValue(true);
+
+        const result = await service.addNamedGroupingPolicies('g2', rules);
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.addNamedGroupingPolicies).toHaveBeenCalledWith(
+          'g2',
+          rules,
+        );
+      });
+    });
+
+    describe('removeGroupingPolicies', () => {
+      it('应该批量删除角色继承规则', async () => {
+        const rules = [
+          ['alice', 'admin'],
+          ['bob', 'user'],
+        ];
+        mockEnforcer.removeGroupingPolicies.mockResolvedValue(true);
+
+        const result = await service.removeGroupingPolicies(rules);
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.removeGroupingPolicies).toHaveBeenCalledWith(rules);
+      });
+    });
+
+    describe('removeFilteredGroupingPolicy', () => {
+      it('应该删除过滤后的角色继承规则', async () => {
+        mockEnforcer.removeFilteredGroupingPolicy.mockResolvedValue(true);
+
+        const result = await service.removeFilteredGroupingPolicy(0, 'alice');
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.removeFilteredGroupingPolicy).toHaveBeenCalledWith(
+          0,
+          'alice',
+        );
+      });
+    });
+
+    describe('removeNamedGroupingPolicy', () => {
+      it('应该删除命名角色继承规则', async () => {
+        mockEnforcer.removeNamedGroupingPolicy.mockResolvedValue(true);
+
+        const result = await service.removeNamedGroupingPolicy(
+          'g2',
+          'alice',
+          'admin',
+        );
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.removeNamedGroupingPolicy).toHaveBeenCalledWith(
+          'g2',
+          'alice',
+          'admin',
+        );
+      });
+    });
+
+    describe('removeNamedGroupingPolicies', () => {
+      it('应该批量删除命名角色继承规则', async () => {
+        const rules = [
+          ['alice', 'admin'],
+          ['bob', 'user'],
+        ];
+        mockEnforcer.removeNamedGroupingPolicies.mockResolvedValue(true);
+
+        const result = await service.removeNamedGroupingPolicies('g2', rules);
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.removeNamedGroupingPolicies).toHaveBeenCalledWith(
+          'g2',
+          rules,
+        );
+      });
+    });
+
+    describe('removeFilteredNamedGroupingPolicy', () => {
+      it('应该删除命名策略中过滤后的角色继承规则', async () => {
+        mockEnforcer.removeFilteredNamedGroupingPolicy.mockResolvedValue(true);
+
+        const result = await service.removeFilteredNamedGroupingPolicy(
+          'g2',
+          0,
+          'alice',
+        );
+
+        expect(result).toBe(true);
+        expect(
+          mockEnforcer.removeFilteredNamedGroupingPolicy,
+        ).toHaveBeenCalledWith('g2', 0, 'alice');
+      });
+    });
+
+    describe('updateNamedGroupingPolicy', () => {
+      it('应该更新命名角色继承规则', async () => {
+        const oldRule = ['alice', 'user'];
+        const newRule = ['alice', 'admin'];
+        mockEnforcer.updateNamedGroupingPolicy.mockResolvedValue(true);
+
+        const result = await service.updateNamedGroupingPolicy(
+          'g2',
+          oldRule,
+          newRule,
+        );
+
+        expect(result).toBe(true);
+        expect(mockEnforcer.updateNamedGroupingPolicy).toHaveBeenCalledWith(
+          'g2',
           oldRule,
           newRule,
         );

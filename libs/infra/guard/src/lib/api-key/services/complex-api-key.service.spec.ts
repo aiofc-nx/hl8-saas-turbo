@@ -171,7 +171,7 @@ describe('ComplexApiKeyService', () => {
 
       // Mock 签名计算（我们会在后面测试签名）
       jest
-        .spyOn(service as never, 'calculateSignature' as never)
+        .spyOn(service as any, 'calculateSignature')
         .mockReturnValue('calculated-signature');
 
       const result = await service.validateKey('test-key', options);
@@ -249,7 +249,7 @@ describe('ComplexApiKeyService', () => {
 
       // Mock 签名计算
       jest
-        .spyOn(service as never, 'calculateSignature' as never)
+        .spyOn(service as any, 'calculateSignature')
         .mockReturnValue('test-signature');
 
       const result = await service.validateKey('test-key', options);
@@ -257,7 +257,7 @@ describe('ComplexApiKeyService', () => {
       expect(mockRedisService.get).toHaveBeenCalledWith(
         expect.stringContaining('new-nonce'),
       );
-      expect(mockRedisService.set).toHaveBeenCalledWith(
+      expect(mockRedisService.set as jest.Mock).toHaveBeenCalledWith(
         expect.stringContaining('new-nonce'),
         'used',
         'EX',

@@ -122,35 +122,45 @@ function formatErrors(
  * - 仅在主进程中输出启动日志
  */
 async function bootstrap() {
+  // 初始化 Redis 客户端，确保缓存和限流功能可用
   await RedisUtility.client();
 
+  // 创建 NestJS Fastify 应用实例
+  // abortOnError: true 表示在启动过程中遇到错误时立即终止
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fastifyApp,
     { abortOnError: true },
   );
 
+  // 获取配置服务
   const configService = app.get(ConfigService<ConfigKeyPaths>);
+  // 获取应用配置
   const { port } = configService.get<IAppConfig>('app', { infer: true });
+  // 获取 CORS 配置
   const corsConfig = configService.get<ICorsConfig>('cors', { infer: true });
 
+  // 使用 NestJS 依赖注入容器
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
+  // 启用 CORS
   if (corsConfig.enabled) {
     app.enableCors(corsConfig.corsOptions);
   }
 
+  // 设置全局 API 前缀
   const GLOBAL_PREFIX = 'v1';
   app.setGlobalPrefix(GLOBAL_PREFIX);
 
   app.useGlobalPipes(new ValidationPipe(validationPipeOptions));
-
+  // 初始化 Swagger 文档
   initDocSwagger(app, configService);
 
+  // 注册 Fastify 压缩插件
   // @ts-ignore
   await app.register(fastifyCompress, { encodings: ['gzip', 'deflate'] });
   // await app.register(fastifyCompress, { brotliOptions: { params: { [constants.BROTLI_PARAM_QUALITY]: 4 } } });
-  // TODO
+  // TODO 注册 CSRF 保护插件
   await app.register(fastifyCsrf as any);
 
   // 注册 Helmet 安全中间件
@@ -173,15 +183,19 @@ async function bootstrap() {
   //       },
   // });
 
+  // 启动 HTTP 服务器
   await app.listen(port, '0.0.0.0', async () => {
     const url = await app.getUrl();
     const { pid } = process;
     const env = cluster.isPrimary;
     const prefix = env ? 'P' : 'W';
 
+    // 如果当前不是主进程，则直接返回
     if (!isMainProcess) return;
 
+    // 创建日志记录器
     const logger = new Logger('NestApplication');
+    // 输出启动日志
     logger.log(`[${prefix + pid}] Server running on ${url}`);
   });
 }

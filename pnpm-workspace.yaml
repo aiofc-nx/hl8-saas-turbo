@@ -1,9 +1,6 @@
 packages:
 - apps/*
 - libs/*
-- libs/common/*
-- libs/modules/*
-- libs/core/*
 - libs/infra/*
 - libs/shared/*
 - packages/*

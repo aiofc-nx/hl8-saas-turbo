@@ -34,8 +34,7 @@
     "@mikro-orm/core": "^6.6.1",
     "@nestjs/common": "11.1.9",
     "@nestjs/core": "11.1.9",
-    "casbin": "^5.41.0",
-    "reflect-metadata": "^0.2.2"
+    "casbin": "^5.41.0"
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",

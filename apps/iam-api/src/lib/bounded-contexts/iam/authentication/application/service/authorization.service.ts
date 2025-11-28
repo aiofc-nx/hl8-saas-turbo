@@ -90,6 +90,23 @@ export class AuthorizationService {
     );
   }
 
+  /**
+   * 为角色分配路由
+   *
+   * @description
+   * 将菜单路由分配给指定角色，并同步到数据库的角色菜单关联表。
+   * 支持增量更新，只添加新路由和删除不再需要的路由。
+   *
+   * @param command - 角色分配路由命令，包含域代码、角色 ID 和菜单 ID 列表
+   *
+   * @throws {NotFoundException} 当域、角色或路由不存在时抛出
+   *
+   * @remarks
+   * - 验证域和角色的存在性
+   * - 查询并验证路由（菜单）是否存在
+   * - 获取角色现有的路由关联
+   * - 使用事务同步路由：删除不再需要的关联，添加新关联
+   */
   async assignRoutes(command: RoleAssignRouteCommand) {
     const { domainCode, roleId } = await this.checkDomainAndRole(
       command.domain,
@@ -140,6 +157,23 @@ export class AuthorizationService {
     });
   }
 
+  /**
+   * 为角色分配用户
+   *
+   * @description
+   * 将用户分配给指定角色，并同步到数据库的用户角色关联表。
+   * 支持增量更新，只添加新用户和删除不再需要的用户。
+   *
+   * @param command - 角色分配用户命令，包含角色 ID 和用户 ID 列表
+   *
+   * @throws {NotFoundException} 当角色或用户不存在时抛出
+   *
+   * @remarks
+   * - 验证角色的存在性
+   * - 查询并验证用户是否存在
+   * - 获取角色现有的用户关联
+   * - 使用事务同步用户：删除不再需要的关联，添加新关联
+   */
   async assignUsers(command: RoleAssignUserCommand) {
     await this.checkRole(command.roleId);
 
@@ -185,6 +219,17 @@ export class AuthorizationService {
     });
   }
 
+  /**
+   * 检查域和角色是否存在
+   *
+   * @description 验证指定域代码和角色 ID 是否存在，如果不存在则抛出异常
+   *
+   * @param domainCode - 域代码
+   * @param roleId - 角色 ID
+   * @returns 返回域代码、角色 ID 和角色代码
+   *
+   * @throws {NotFoundException} 当域或角色不存在时抛出异常
+   */
   private async checkDomainAndRole(domainCode: string, roleId: string) {
     const domain = await this.queryBus.execute<
       FindDomainByCodeQuery,
@@ -199,6 +244,16 @@ export class AuthorizationService {
     return { domainCode: domain.code, roleId, roleCode };
   }
 
+  /**
+   * 检查角色是否存在
+   *
+   * @description 验证指定角色 ID 是否存在，如果不存在则抛出异常
+   *
+   * @param roleId - 角色 ID
+   * @returns 返回角色代码
+   *
+   * @throws {NotFoundException} 当角色不存在时抛出异常
+   */
   private async checkRole(roleId: string) {
     const role = await this.queryBus.execute<
       FindRoleByIdQuery,
@@ -211,6 +266,24 @@ export class AuthorizationService {
     return { roleCode: role.code };
   }
 
+  /**
+   * 同步角色权限
+   *
+   * @description
+   * 同步角色的权限到 Casbin 策略中。
+   * 删除不再需要的权限，添加新权限，确保 Casbin 策略与期望的权限列表一致。
+   *
+   * @param roleCode - 角色代码
+   * @param domain - 域代码
+   * @param newPermissions - 新的权限列表（API 端点）
+   * @param existingPermissions - 现有的权限策略列表
+   * @returns Promise<void>
+   *
+   * @remarks
+   * - 权限策略格式：[角色代码, 资源, 操作, 域, 'allow']
+   * - 使用 Set 进行高效的差异计算
+   * - 先删除不再需要的权限，再添加新权限
+   */
   private async syncRolePermissions(
     roleCode: string,
     domain: string,

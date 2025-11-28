@@ -16,6 +16,27 @@ import { Controllers as IamRest } from './iam/rest';
 import { Controllers as LoginLogRest } from './log-audit/login-log/rest';
 import { Controllers as OperationLogRest } from './log-audit/operation-log/rest';
 
+/**
+ * API 模块
+ *
+ * @description
+ * 该模块聚合了 IAM 系统的所有 REST API 控制器，包括：
+ * - IAM 相关：认证、授权、用户、角色、域、菜单路由
+ * - API 端点管理
+ * - 访问密钥管理
+ * - 日志审计：登录日志、操作日志
+ *
+ * 该模块负责注册所有基础设施模块和控制器，是 API 层的入口模块。
+ *
+ * @example
+ * ```typescript
+ * // 在 app.module.ts 中导入
+ * @Module({
+ *   imports: [ApiModule],
+ * })
+ * export class AppModule {}
+ * ```
+ */
 @Module({
   imports: [
     IamModule,

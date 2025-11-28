@@ -113,26 +113,33 @@ class ThrottlerStorageAdapter implements ThrottlerStorage {
         return user;
       },
     }),
+    // 限流模块配置
+    // 使用 Redis 存储限流数据，支持单机和集群模式
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService<ConfigKeyPaths>) => {
+        // 获取限流配置
         const { ttl, limit, errorMessage } =
           configService.get<IThrottlerConfig>(throttlerConfigToken, {
             infer: true,
           });
 
+        // 获取 Redis 配置
         const redisOpts = configService.get<IRedisConfig>(redisRegToken, {
           infer: true,
         });
 
+        // 创建限流存储 Redis 服务
         let throttlerStorageRedisService: ThrottlerStorageRedisService;
 
+        // 如果 Redis 配置为集群模式，则创建集群模式的限流存储 Redis 服务
         if (redisOpts.mode === 'cluster') {
           throttlerStorageRedisService = new ThrottlerStorageRedisService(
             new Redis.Cluster(redisOpts.cluster),
           );
         } else {
+          // 如果 Redis 配置为单机模式，则创建单机模式的限流存储 Redis 服务
           throttlerStorageRedisService = new ThrottlerStorageRedisService(
             new Redis({
               host: redisOpts.standalone.host,
@@ -143,41 +150,59 @@ class ThrottlerStorageAdapter implements ThrottlerStorage {
           );
         }
 
+        // 创建限流存储适配器
         const storageAdapter = new ThrottlerStorageAdapter(
           throttlerStorageRedisService,
         );
 
+        // 返回限流模块配置
         return {
+          // 设置错误消息
           errorMessage: errorMessage,
+          // 设置限流器配置
           throttlers: [{ ttl, limit }],
+          // 设置限流存储适配器
           storage: storageAdapter,
         };
       },
     }),
 
+    // CQRS 模块
     GlobalCqrsModule,
 
+    // API 模块
     ApiModule,
 
+    // 共享模块
     SharedModule,
 
+    // API Key 模块
     ApiKeyModule,
+
+    // 引导模块
     BootstrapModule,
   ],
+  // 控制器
   controllers: [AppController],
+  // 提供者
   providers: [
     AppService,
 
+    // 认证策略
     ...strategies,
 
+    // 全局异常过滤器
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    // JWT 认证守卫
 
     //TODO 拦截器极度影响性能 有需要自行开启 对性能有要求使用decorator形式 每个接口手动加虽然麻烦点或者app.use指定路由统一使用相对代码量少
     // { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
     // { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
     // { provide: APP_INTERCEPTOR, useClass: LogInterceptor },
 
+    // JWT 认证守卫
     { provide: APP_GUARD, useClass: JwtAuthGuard },
+    // 限流守卫
     // { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })

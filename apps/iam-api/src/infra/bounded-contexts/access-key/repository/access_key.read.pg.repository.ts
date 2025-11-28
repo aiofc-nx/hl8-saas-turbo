@@ -11,19 +11,32 @@ import { PageAccessKeysQuery } from '@/lib/bounded-contexts/access-key/queries/p
 import { PaginationResult } from '@hl8/rest';
 
 /**
- * AccessKey 读取仓储实现
+ * 访问密钥读取仓储实现
  *
- * @description 使用 MikroORM EntityManager 实现 AccessKey 数据的读取操作
+ * @description
+ * 使用 MikroORM EntityManager 实现访问密钥数据的读取操作。
+ * 该实现遵循端口适配器模式，实现了 AccessKeyReadRepoPort 接口。
+ *
+ * @implements {AccessKeyReadRepoPort}
  */
 @Injectable()
 export class AccessKeyReadPostgresRepository implements AccessKeyReadRepoPort {
+  /**
+   * 构造函数
+   *
+   * @param em - MikroORM 实体管理器，用于数据库操作
+   */
   constructor(private readonly em: EntityManager) {}
 
   /**
-   * 分页查询 AccessKey
+   * 分页查询访问密钥
    *
-   * @param query - 分页查询参数
-   * @returns 分页结果
+   * @description
+   * 根据查询条件分页查询访问密钥列表，支持按域和状态筛选。
+   * 返回的结果不包含敏感信息（AccessKeySecret）。
+   *
+   * @param query - 分页查询参数，包含页码、页大小、域和状态筛选条件
+   * @returns 返回分页结果，包含访问密钥列表和分页信息
    */
   async pageAccessKeys(
     query: PageAccessKeysQuery,
@@ -65,10 +78,12 @@ export class AccessKeyReadPostgresRepository implements AccessKeyReadRepoPort {
   }
 
   /**
-   * 根据 ID 获取 AccessKey
+   * 根据 ID 获取访问密钥
    *
-   * @param id - AccessKey ID
-   * @returns AccessKey 属性或 null
+   * @description 从数据库中查询指定 ID 的访问密钥，返回完整的属性信息
+   *
+   * @param id - 访问密钥的唯一标识符
+   * @returns 返回访问密钥属性对象，如果不存在则返回 null
    */
   async getAccessKeyById(
     id: string,
@@ -80,9 +95,11 @@ export class AccessKeyReadPostgresRepository implements AccessKeyReadRepoPort {
   }
 
   /**
-   * 查询所有 AccessKey
+   * 查询所有访问密钥
    *
-   * @returns AccessKey 属性列表
+   * @description 查询数据库中所有访问密钥，返回完整的属性列表
+   *
+   * @returns 返回所有访问密钥的属性数组
    */
   async findAll(): Promise<AccessKeyProperties[]> {
     const accessKeys = await this.em.find(

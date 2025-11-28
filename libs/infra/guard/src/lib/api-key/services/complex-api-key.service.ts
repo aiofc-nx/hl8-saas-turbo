@@ -168,51 +168,59 @@ export class ComplexApiKeyService implements OnModuleInit, IApiKeyService {
     options: ValidateKeyOptions,
   ): Promise<boolean> {
     const { timestamp, nonce, signature, algorithm } = options;
-
+    // 验证算法是否提供且受支持
     if (!algorithm) {
       throw new BadRequestException(
         'Algorithm is required for signature verification.',
       );
     }
 
+    // 验证算法是否支持
     if (!Object.values(SignatureAlgorithm).includes(algorithm)) {
       throw new BadRequestException(`Unsupported algorithm: ${algorithm}`);
     }
 
+    // 验证时间戳、nonce 和签名是否提供
     if (!timestamp || !nonce || !signature) {
       throw new BadRequestException(
         'Missing required fields for signature verification.',
       );
     }
 
+    // 验证时间戳是否有效
     if (!this.isValidTimestamp(timestamp)) {
       throw new BadRequestException('Invalid or expired timestamp.');
     }
 
+    // 验证 Nonce 是否有效
     if (!(await this.isValidNonce(nonce))) {
       throw new BadRequestException(
         'Nonce has already been used or is too old.',
       );
     }
 
+    // 获取对应的密钥
     const secret = this.apiSecrets.get(apiKey);
     if (!secret) {
       return false;
     }
 
+    // 获取请求参数
     const params = options.requestParams ?? {};
 
-    // Ensure Algorithm, AlgorithmVersion, ApiVersion are included in params
+    // 确保 Algorithm, AlgorithmVersion, ApiVersion 在请求参数中
     params['Algorithm'] = algorithm;
     params['AlgorithmVersion'] = options.algorithmVersion || 'v1';
     params['ApiVersion'] = options.apiVersion || 'v1';
 
+    // 计算签名
     const calculatedSignature = this.calculateSignature(
       params,
       secret,
       algorithm,
     );
 
+    // 验证签名是否正确
     return calculatedSignature === signature;
   }
 
@@ -228,8 +236,11 @@ export class ComplexApiKeyService implements OnModuleInit, IApiKeyService {
    * 时间戳验证允许一定的偏差，以应对时钟同步问题。如果请求时间戳与服务器当前时间的差值超过配置的阈值，验证将失败。
    */
   private isValidTimestamp(timestamp: string): boolean {
+    // 将时间戳转换为整数
     const requestTime = parseInt(timestamp);
+    // 获取当前时间
     const currentTime = Date.now();
+    // 验证时间戳是否在允许的时间窗口内
     return (
       Math.abs(currentTime - requestTime) <
       this.securityConfig.signReqTimestampDisparity
@@ -248,17 +259,21 @@ export class ComplexApiKeyService implements OnModuleInit, IApiKeyService {
    * Nonce 存储在 Redis 中，键格式为 `cache:sign::nonce:{nonce}`。TTL 由配置项 `signReqNonceTTL` 定义，默认 5 分钟。一旦 Nonce 被使用，在 TTL 过期前不能再次使用。
    */
   private async isValidNonce(nonce: string): Promise<boolean> {
+    // 构建 Nonce 缓存键
     const key = `${CacheConstant.CACHE_PREFIX}sign::nonce:${nonce}`;
+    // 检查 Nonce 是否存在
     const exists = await this.redisService.get(key);
     if (exists) {
       return false;
     }
+    // 设置 Nonce 为已使用
     await this.redisService.set(
       key,
       'used',
       'EX',
       this.securityConfig.signReqNonceTTL,
     );
+    // 返回 Nonce 有效
     return true;
   }
 
@@ -320,11 +335,14 @@ export class ComplexApiKeyService implements OnModuleInit, IApiKeyService {
       .filter((item): item is string => item !== null)
       .join('&');
 
+    // 获取对应的签名算法处理器
     const handler = this.algorithmHandlers[algorithm];
+    // 验证签名算法处理器是否存在
     if (!handler) {
       throw new Error(`Unsupported algorithm: ${algorithm}`);
     }
 
+    // 计算签名
     return handler(signingString, secret);
   }
 
@@ -338,7 +356,9 @@ export class ComplexApiKeyService implements OnModuleInit, IApiKeyService {
    * @returns Promise<void>
    */
   async addKey(apiKey: string, secret: string): Promise<void> {
+    // 将 API Key 和密钥添加到 Redis Hash 中
     await this.redisService.hset(this.cacheKey, apiKey, secret);
+    // 将 API Key 和密钥添加到内存缓存中
     this.apiSecrets.set(apiKey, secret);
   }
 
@@ -351,7 +371,9 @@ export class ComplexApiKeyService implements OnModuleInit, IApiKeyService {
    * @returns Promise<void>
    */
   async removeKey(apiKey: string): Promise<void> {
+    // 从 Redis Hash 中删除 API Key 和对应的密钥
     await this.redisService.hdel(this.cacheKey, apiKey);
+    // 从内存缓存中删除 API Key 和对应的密钥
     this.apiSecrets.delete(apiKey);
   }
 
@@ -365,7 +387,9 @@ export class ComplexApiKeyService implements OnModuleInit, IApiKeyService {
    * @returns Promise<void>
    */
   async updateKey(apiKey: string, newSecret: string): Promise<void> {
+    // 从 Redis Hash 中更新 API Key 和对应的密钥
     await this.redisService.hset(this.cacheKey, apiKey, newSecret);
+    // 从内存缓存中更新 API Key 和对应的密钥
     this.apiSecrets.set(apiKey, newSecret);
   }
 }

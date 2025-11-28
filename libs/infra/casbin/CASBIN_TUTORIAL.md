@@ -989,6 +989,7 @@ export class DataController {
    ```
 
 5. **角色权限检查**：对每个角色，使用 Casbin 执行器检查权限
+
    ```typescript
    async hasPermission(
      roles: Set<string>,
@@ -2052,6 +2053,7 @@ export class CasbinRule {
    - 自动加载到内存（如果使用自动加载）
 
 2. **添加用户角色**：
+
    ```typescript
    await authZService.addRoleForUser('alice', 'admin', 'domain1');
    ```

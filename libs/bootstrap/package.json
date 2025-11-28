@@ -28,17 +28,17 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@hl8/utils": "workspace:*",
-    "@hl8/config": "workspace:*",
     "@hl8/adapter": "workspace:*",
     "@hl8/casbin": "workspace:*",
+    "@hl8/config": "workspace:*",
     "@hl8/constants": "workspace:*",
     "@hl8/rest": "workspace:*",
+    "@hl8/utils": "workspace:*",
     "@nestjs/common": "11.1.9",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "11.1.9",
     "@nestjs/event-emitter": "3.0.1",
-    "@nestjs/swagger": "11.2.3",
+    "@nestjs/swagger": "^11.2.3",
     "chalk": "^5.6.2",
     "gradient-string": "^3.0.0",
     "reflect-metadata": "^0.2.2"

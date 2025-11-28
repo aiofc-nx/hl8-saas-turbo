@@ -6,4 +6,4 @@ export * from './lib/api-key/events/api-key-validation.event';
 export * from './lib/api-key/services/api-key.interface';
 export * from './lib/api-key/services/complex-api-key.service';
 export * from './lib/api-key/services/simple-api-key.service';
-export * from './lib/jwt.auth.guard';
+export * from './lib/jwt/jwt.auth.guard';
