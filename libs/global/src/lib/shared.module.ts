@@ -13,6 +13,7 @@ import { Ip2regionModule } from '@hl8/ip2region';
 import { MikroOrmModule } from '@hl8/mikro-orm-nestjs';
 import { OssModule } from '@hl8/oss';
 import { getConfigPath } from '@hl8/utils';
+
 import { CacheManagerModule } from './cache-manager.module';
 
 /**
@@ -177,16 +178,31 @@ interface IIp2regionConfig {
           user: dbUsername,
           password: dbPassword,
           dbName: dbName,
-          // 实体：直接导入实体类，避免 glob 模式导致的重复匹配问题
-          // 这样可以确保每个实体只被注册一次
-          entities: [CasbinRule],
+          // 实体配置
+          // 开发环境：使用 TypeScript 实体文件路径自动发现
+          // 生产环境：使用编译后的 JavaScript 实体文件路径
+          ...(isProduction
+            ? {
+                // 生产环境：使用编译后的实体文件路径
+                entities: [
+                  CasbinRule,
+                  `${projectRoot}/apps/iam-api/dist/infra/entities/**/*.entity.js`,
+                ],
+              }
+            : {
+                // 开发环境：使用 TypeScript 实体文件路径
+                entities: [CasbinRule],
+                entitiesTs: [
+                  `${projectRoot}/apps/iam-api/src/infra/entities/**/*.entity.ts`,
+                ],
+              }),
           migrations: {
             path: 'dist/migrations',
             pathTs: 'src/migrations',
             glob: '!(*.d).{js,ts}',
           },
-          // 禁用 autoLoadEntities，使用明确的路径配置
-          autoLoadEntities: false,
+          // 启用 autoLoadEntities，自动加载通过 MikroOrmModule.forFeature() 注册的实体
+          autoLoadEntities: true,
           // 允许使用全局 EntityManager 实例进行上下文特定的操作
           // 这在某些场景下是必要的，例如在应用启动时初始化 Casbin 适配器
           allowGlobalContext: true,

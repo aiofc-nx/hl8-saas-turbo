@@ -7,7 +7,11 @@ import {
 } from './constants/authz.constants';
 import { AuthZGuard } from './guards/authz.guard';
 import { AuthZModuleOptions } from './interfaces';
-import { AuthZService } from './services';
+import {
+  AuthZManagementService,
+  AuthZRBACService,
+  AuthZService,
+} from './services';
 
 /**
  * 授权模块
@@ -79,6 +83,10 @@ export class AuthZModule {
         enforcerProvider,
         AuthZGuard,
         AuthZService,
+        // 添加 AuthZManagementService 以支持已废弃但仍在使用的服务
+        AuthZManagementService,
+        // 添加 AuthZRBACService 以支持 RBAC 相关功能
+        AuthZRBACService,
       ],
       imports: importsModule,
       exports: [
@@ -86,6 +94,10 @@ export class AuthZModule {
         enforcerProvider,
         AuthZGuard,
         AuthZService,
+        // 导出 AuthZManagementService 以便其他模块使用
+        AuthZManagementService,
+        // 导出 AuthZRBACService 以便其他模块使用
+        AuthZRBACService,
       ],
     };
   }
