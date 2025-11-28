@@ -1,0 +1,50 @@
+import { Status } from '@/lib/shared/enums/status.enum';
+import { BadRequestException, Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { UlidGenerator } from '@hl8/utils';
+
+import { DomainCreateCommand } from '../../commands/domain-create.command';
+import {
+  DomainReadRepoPortToken,
+  DomainWriteRepoPortToken,
+} from '../../constants';
+import { Domain } from '../../domain/domain.model';
+import type { DomainCreateProperties } from '../../domain/domain.read.model';
+import type { DomainReadRepoPort } from '../../ports/domain.read.repo-port';
+import type { DomainWriteRepoPort } from '../../ports/domain.write.repo-port';
+
+@CommandHandler(DomainCreateCommand)
+export class DomainCreateHandler
+  implements ICommandHandler<DomainCreateCommand, void>
+{
+  @Inject(DomainWriteRepoPortToken)
+  private readonly domainWriteRepository: DomainWriteRepoPort;
+  @Inject(DomainReadRepoPortToken)
+  private readonly domainReadRepoPort: DomainReadRepoPort;
+
+  async execute(command: DomainCreateCommand) {
+    const existingDomain = await this.domainReadRepoPort.getDomainByCode(
+      command.code,
+    );
+
+    if (existingDomain) {
+      throw new BadRequestException(
+        `A domain with code ${command.code} already exists.`,
+      );
+    }
+
+    const domainCreateProperties: DomainCreateProperties = {
+      id: UlidGenerator.generate(),
+      code: command.code,
+      name: command.name,
+      status: Status.ENABLED,
+      description: command.description,
+      createdAt: new Date(),
+      createdBy: command.uid,
+    };
+
+    const domain = Domain.fromCreate(domainCreateProperties);
+    await this.domainWriteRepository.save(domain);
+  }
+}
