@@ -138,20 +138,22 @@ interface IIp2regionConfig {
           process.env.NODE_ENV === 'production' ||
           (require.main && require.main.filename.includes('/dist/'));
 
-        // 获取项目根目录
-        // 通过检查主模块路径来确定项目根目录
-        // 如果主模块路径包含 /apps/，则项目根目录是 apps 的父目录
+        // 获取项目根目录和应用名称
+        // 通过检查主模块路径来确定项目根目录和应用名称
+        // 如果主模块路径包含 /apps/，则项目根目录是 apps 的父目录，应用名称是 apps 后的目录名
         // 否则使用当前工作目录
         const cwd = process.cwd();
         let projectRoot = cwd;
+        let appName = 'admin-api'; // 默认应用名称
 
         if (require.main) {
           const mainPath = require.main.filename;
-          // 从主模块路径提取项目根目录
-          // 例如：/path/to/project/apps/fastify-api/dist/main.js -> /path/to/project
-          const appsMatch = mainPath.match(/(.+)[/\\]apps[/\\]/);
+          // 从主模块路径提取项目根目录和应用名称
+          // 例如：/path/to/project/apps/admin-api/dist/main.js -> projectRoot: /path/to/project, appName: admin-api
+          const appsMatch = mainPath.match(/(.+)[/\\]apps[/\\]([^/\\]+)/);
           if (appsMatch) {
             projectRoot = appsMatch[1];
+            appName = appsMatch[2];
           } else {
             // 如果不在 apps 目录下，尝试从 libs 目录提取
             const libsMatch = mainPath.match(/(.+)[/\\]libs[/\\]/);
@@ -167,8 +169,24 @@ interface IIp2regionConfig {
             const appsIndex = parts.findIndex((p) => p === 'apps');
             if (appsIndex > 0) {
               projectRoot = parts.slice(0, appsIndex).join('/');
+              // 如果 apps 后面还有目录，则作为应用名称
+              if (parts.length > appsIndex + 1) {
+                appName = parts[appsIndex + 1];
+              }
             }
           }
+        }
+
+        // 构建实体路径
+        const entitiesPath = isProduction
+          ? `${projectRoot}/apps/${appName}/dist/infra/entities/**/*.entity.js`
+          : `${projectRoot}/apps/${appName}/src/infra/entities/**/*.entity.ts`;
+
+        // 调试日志（仅在开发环境输出）
+        if (!isProduction) {
+          console.log('[MikroORM] 项目根目录:', projectRoot);
+          console.log('[MikroORM] 应用名称:', appName);
+          console.log('[MikroORM] 实体路径:', entitiesPath);
         }
 
         return {
@@ -181,20 +199,16 @@ interface IIp2regionConfig {
           // 实体配置
           // 开发环境：使用 TypeScript 实体文件路径自动发现
           // 生产环境：使用编译后的 JavaScript 实体文件路径
+          // 动态检测应用名称，支持 admin-api、iam-api 等多个应用
           ...(isProduction
             ? {
                 // 生产环境：使用编译后的实体文件路径
-                entities: [
-                  CasbinRule,
-                  `${projectRoot}/apps/iam-api/dist/infra/entities/**/*.entity.js`,
-                ],
+                entities: [CasbinRule, entitiesPath],
               }
             : {
                 // 开发环境：使用 TypeScript 实体文件路径
                 entities: [CasbinRule],
-                entitiesTs: [
-                  `${projectRoot}/apps/iam-api/src/infra/entities/**/*.entity.ts`,
-                ],
+                entitiesTs: [entitiesPath],
               }),
           migrations: {
             path: 'dist/migrations',
