@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * 登录日志必需属性类型
+ *
+ * @description 定义登录日志读模型所需的所有必需属性，所有字段均为只读且必需。
+ * 该类型用于确保登录日志数据的完整性和一致性。
+ */
 export type LoginLogEssentialProperties = Readonly<
   Required<{
     username: string;
@@ -15,8 +21,35 @@ export type LoginLogEssentialProperties = Readonly<
   }>
 >;
 
+/**
+ * 登录日志属性类型
+ *
+ * @description 登录日志的完整属性类型定义，继承自必需属性类型。
+ */
 export type LoginLogProperties = LoginLogEssentialProperties;
 
+/**
+ * 登录日志读模型
+ *
+ * @description 用于查询和展示的登录日志数据模型，包含登录相关的所有信息。
+ * 该模型用于API响应和前端展示，支持分页查询和条件筛选。
+ *
+ * @example
+ * ```typescript
+ * const loginLog: LoginLogReadModel = {
+ *   username: 'john.doe',
+ *   domain: 'example.com',
+ *   loginTime: new Date(),
+ *   ip: '192.168.1.1',
+ *   port: 8080,
+ *   address: '北京市',
+ *   userAgent: 'Mozilla/5.0...',
+ *   requestId: 'req-456',
+ *   type: 'success',
+ *   createdAt: new Date()
+ * };
+ * ```
+ */
 export class LoginLogReadModel {
   @ApiProperty({ description: 'Username associated with the login event' })
   username: string;
