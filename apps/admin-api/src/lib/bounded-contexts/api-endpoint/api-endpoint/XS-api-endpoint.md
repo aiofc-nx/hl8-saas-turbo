@@ -22,7 +22,17 @@ API 端点是后端接口的抽象表示，用于 Casbin 权限控制和接口�
 - **事件驱动：** 通过事件实现端点自动收集和同步
 - **端口适配器模式：** 通过端口接口定义仓储契约，由基础设施层实现
 
-## 2. 领域模型
+## 2. 领域层（Domain Layer）
+
+领域层是 API 端点有界上下文的核心业务逻辑层，包含领域模型、业务规则和领域概念。
+
+**详细文档**：请参阅 [领域层开发文档](./domain/README.md)
+
+领域层包含以下组件：
+
+- **聚合根（Aggregate Root）**：`ApiEndpoint` - API 端点的领域模型
+- **读模型（Read Model）**：`EndpointReadModel` - 用于查询和展示的模型
+- **类型定义（Type Definitions）**：端点属性的类型定义
 
 ### 2.1 聚合根
 
@@ -92,9 +102,36 @@ API 端点的领域聚合根，继承自 `AggregateRoot`，表示一个后端 AP
 
 包含端点的所有属性，继承自必需属性。
 
-## 3. 查询（Queries）
+## 3. 应用层（Application Layer）
 
-### 3.1 EndpointsQuery（端点查询）
+应用层是 API 端点有界上下文的核心业务编排层，负责协调领域对象完成业务用例。
+
+**详细文档**：请参阅 [应用层开发文档](./application/README.md)
+
+应用层包含以下组件：
+
+- **查询处理器（Query Handlers）**：实现查询用例，负责数据查询
+  - `EndpointsQueryHandler`：端点树形查询处理器
+  - `FindEndpointsByIdsQueryHandler`：根据 ID 列表查询处理器
+  - `PageEndpointsQueryHandler`：分页查询处理器
+- **事件处理器（Event Handlers）**：实现事件处理用例，负责处理领域事件
+  - `ApiEndpointEventHandler`：API 端点事件处理器
+- **应用服务（Application Services）**：实现服务用例，负责复杂业务流程编排
+  - `CasbinRuleApiEndpointService`：Casbin 规则查询服务
+
+## 4. 查询层（Queries Layer）
+
+查询层是 API 端点有界上下文的查询对象定义层，遵循 CQRS 模式，定义了所有查询操作的查询对象。
+
+**详细文档**：请参阅 [查询层开发文档](./queries/README.md)
+
+查询层包含以下查询对象：
+
+- **EndpointsQuery**：端点树形查询
+- **FindEndpointsByIdsQuery**：根据 ID 列表查询
+- **PageEndpointsQuery**：分页查询
+
+### 4.1 EndpointsQuery（端点查询）
 
 **用途：** 查询所有需要权限控制的 API 端点，返回树形结构
 
@@ -116,7 +153,7 @@ API 端点的领域聚合根，继承自 `AggregateRoot`，表示一个后端 AP
 - 接口文档树形展示
 - 权限管理界面
 
-### 3.2 FindEndpointsByIdsQuery（根据 ID 列表查询端点）
+### 4.2 FindEndpointsByIdsQuery（根据 ID 列表查询端点）
 
 **用途：** 根据端点 ID 列表批量查询 API 端点信息
 
@@ -138,7 +175,7 @@ API 端点的领域聚合根，继承自 `AggregateRoot`，表示一个后端 AP
 - 权限分配时获取指定的端点详情
 - 批量操作时获取端点信息
 
-### 3.3 PageEndpointsQuery（分页查询端点）
+### 4.3 PageEndpointsQuery（分页查询端点）
 
 **用途：** 分页查询 API 端点列表，支持多条件筛选
 
@@ -161,7 +198,7 @@ API 端点的领域聚合根，继承自 `AggregateRoot`，表示一个后端 AP
 - 端点搜索和筛选
 - 接口文档列表展示
 
-## 4. 事件处理器（Event Handlers）
+## 5. 事件处理器（Event Handlers）
 
 ### 4.1 ApiEndpointEventHandler（API 端点事件处理器）
 
@@ -204,7 +241,7 @@ ApiEndpointEventHandler 接收事件
 记录日志
 ```
 
-## 5. 服务（Services）
+## 6. 服务（Services）
 
 ### 5.1 CasbinRuleApiEndpointService（Casbin 规则 API 端点服务）
 
@@ -243,9 +280,19 @@ p, roleCode, resource, action, domain
 - 权限管理界面展示角色的权限规则
 - 权限分配时查询现有权限
 
-## 6. 仓储接口（Repository Ports）
+## 7. 端口层（Ports Layer）
 
-### 6.1 ApiEndpointWriteRepoPort（写入仓储端口）
+端口层是 API 端点有界上下文的接口定义层，遵循端口适配器模式，定义了应用层需要的数据访问接口。
+
+**详细文档**：请参阅 [端口层开发文档](./ports/README.md)
+
+端口层包含以下组件：
+
+- **写入仓储端口**：`ApiEndpointWriteRepoPort` - 定义写入操作接口
+- **读取仓储端口**：`ApiEndpointReadRepoPort` - 定义读取操作接口
+- **端口令牌**：用于依赖注入的符号令牌
+
+### 7.1 ApiEndpointWriteRepoPort（写入仓储端口）
 
 **接口定义：**
 
@@ -266,7 +313,7 @@ interface ApiEndpointWriteRepoPort {
 - 系统启动时批量保存收集到的端点
 - 端点信息更新时保存
 
-### 6.2 ApiEndpointReadRepoPort（读取仓储端口）
+### 7.2 ApiEndpointReadRepoPort（读取仓储端口）
 
 **接口定义：**
 
@@ -290,7 +337,7 @@ interface ApiEndpointReadRepoPort {
 
 **实现位置：** 基础设施层（Infrastructure Layer）
 
-## 7. 模块配置
+## 8. 模块配置
 
 ### 7.1 ApiEndpointModule（API 端点模块）
 
@@ -323,9 +370,9 @@ ApiEndpointModule.register({
 
 **导出：** 查询处理器和服务（供其他模块使用）
 
-## 8. 使用示例
+## 9. 使用示例
 
-### 8.1 查询所有端点（树形结构）
+### 9.1 查询所有端点（树形结构）
 
 ```typescript
 // 通过查询总线发送查询
@@ -335,7 +382,7 @@ const result = await queryBus.execute(query);
 // 按控制器分组，每个控制器包含其下的所有端点
 ```
 
-### 8.2 根据 ID 列表查询端点
+### 9.2 根据 ID 列表查询端点
 
 ```typescript
 // 通过查询总线发送查询
@@ -344,7 +391,7 @@ const result = await queryBus.execute(query);
 // result: EndpointProperties[]
 ```
 
-### 8.3 分页查询端点
+### 9.3 分页查询端点
 
 ```typescript
 // 通过查询总线发送查询
@@ -364,7 +411,7 @@ const result = await queryBus.execute(query);
 // result.pageSize: number
 ```
 
-### 8.4 查询角色的端点权限
+### 9.4 查询角色的端点权限
 
 ```typescript
 // 注入 CasbinRuleApiEndpointService
@@ -376,7 +423,7 @@ const rules = await casbinRuleApiEndpointService.authApiEndpoint(
 // 包含该角色在该域下的所有权限规则
 ```
 
-### 8.5 在基础设施层注册模块
+### 9.5 在基础设施层注册模块
 
 ```typescript
 @Module({
@@ -399,9 +446,9 @@ const rules = await casbinRuleApiEndpointService.authApiEndpoint(
 export class ApiEndpointInfraModule {}
 ```
 
-## 9. 端点自动收集机制
+## 10. 端点自动收集机制
 
-### 9.1 收集流程
+### 10.1 收集流程
 
 ```
 应用启动
@@ -421,7 +468,7 @@ ApiEndpointEventHandler 接收事件
 批量保存到数据库
 ```
 
-### 9.2 端点信息解析
+### 10.2 端点信息解析
 
 端点信息从以下来源解析：
 
@@ -432,7 +479,7 @@ ApiEndpointEventHandler 接收事件
 - **控制器（controller）：** 从控制器类名获取
 - **摘要（summary）：** 从 Swagger 装饰器获取，例如 `@ApiOperation({ summary: '...' })`
 
-### 9.3 端点唯一性
+### 10.3 端点唯一性
 
 端点的唯一性由以下组合确定：
 
@@ -440,9 +487,9 @@ ApiEndpointEventHandler 接收事件
 
 即同一个路径的不同 HTTP 方法被视为不同的端点。
 
-## 10. 权限控制集成
+## 11. 权限控制集成
 
-### 10.1 Casbin 规则格式
+### 11.1 Casbin 规则格式
 
 API 端点与 Casbin 权限系统集成，规则格式为：
 
@@ -458,7 +505,7 @@ p, admin, user, write, example.com
 p, user, user, read, example.com
 ```
 
-### 10.2 权限验证流程
+### 11.2 权限验证流程
 
 ```
 API 请求
@@ -476,7 +523,7 @@ API 请求
 允许或拒绝请求
 ```
 
-### 10.3 权限分配
+### 11.3 权限分配
 
 权限分配时：
 
@@ -485,27 +532,27 @@ API 请求
 3. 创建 Casbin 规则（p, roleCode, resource, action, domain）
 4. 保存到 Casbin 规则表
 
-## 11. 性能优化
+## 12. 性能优化
 
-### 11.1 批量保存
+### 12.1 批量保存
 
 - 系统启动时一次性批量保存所有端点，避免多次数据库操作
 - 使用事务确保数据一致性
 
-### 11.2 查询优化
+### 12.2 查询优化
 
 - 分页查询支持索引优化
 - 按 ID 列表查询支持批量查询优化
 - 树形结构查询在应用层构建，减少数据库查询次数
 
-### 11.3 缓存策略
+### 12.3 缓存策略
 
 - 端点信息相对稳定，可以考虑缓存
 - 权限规则查询频繁，建议使用缓存
 
-## 12. 扩展点
+## 13. 扩展点
 
-### 12.1 端点版本管理
+### 13.1 端点版本管理
 
 当前版本不支持端点版本管理，未来可扩展：
 
@@ -513,7 +560,7 @@ API 请求
 - 支持端点变更历史
 - 支持端点废弃标记
 
-### 12.2 端点分组
+### 13.2 端点分组
 
 当前版本按控制器分组，未来可扩展：
 
@@ -521,7 +568,7 @@ API 请求
 - 支持多级分组
 - 支持分组权限
 
-### 12.3 端点统计
+### 13.3 端点统计
 
 当前版本不支持端点统计，未来可扩展：
 
@@ -529,7 +576,7 @@ API 请求
 - 端点响应时间统计
 - 端点错误率统计
 
-### 12.4 端点文档
+### 13.4 端点文档
 
 当前版本支持摘要信息，未来可扩展：
 
@@ -537,69 +584,69 @@ API 请求
 - 参数和返回值说明
 - 示例代码生成
 
-## 13. 依赖关系
+## 14. 依赖关系
 
-### 13.1 内部依赖
+### 14.1 内部依赖
 
 - `@hl8/rest`: 分页参数和结果类型
 - `@hl8/constants`: 事件常量
 - `@mikro-orm/core`: ORM 核心（用于 CasbinRuleApiEndpointService）
 
-### 13.2 外部依赖
+### 14.2 外部依赖
 
 - `@nestjs/common`: NestJS 核心模块
 - `@nestjs/cqrs`: CQRS 模式支持
 - `@nestjs/event-emitter`: 事件发射器
 - `@nestjs/swagger`: API 文档支持
 
-## 14. 测试建议
+## 15. 测试建议
 
-### 14.1 单元测试
+### 15.1 单元测试
 
 - 测试聚合根的业务逻辑
 - 测试查询处理器的查询逻辑
 - 测试事件处理器的事件处理逻辑
 - 测试服务的业务逻辑
 
-### 14.2 集成测试
+### 15.2 集成测试
 
 - 测试端点自动收集的完整流程
 - 测试查询的完整流程
 - 测试事件处理的完整流程
 - 测试仓储接口的实现
 
-### 14.3 端到端测试
+### 15.3 端到端测试
 
 - 测试端点自动收集和保存
 - 测试端点查询的完整 API 流程
 - 测试权限控制的完整流程
 - 测试树形结构构建的正确性
 
-## 15. 注意事项
+## 16. 注意事项
 
-### 15.1 事件处理时机
+### 16.1 事件处理时机
 
 - 确保 `ApiEndpointEventHandler` 在 `EVENT_API_ROUTE_COLLECTED` 事件发射之前注册
 - 如果使用装饰器方式，注意模块初始化顺序
 - 建议使用手动注册方式作为备用方案
 
-### 15.2 端点唯一性
+### 16.2 端点唯一性
 
 - 端点的唯一性由 `path + method` 确定
 - 确保同一路径的不同方法被视为不同端点
 - 路径参数（如 `/user/:id`）需要正确处理
 
-### 15.3 权限规则同步
+### 16.3 权限规则同步
 
 - 端点信息变更时，需要同步更新相关的 Casbin 规则
 - 删除端点时，需要清理相关的权限规则
 
-### 15.4 多租户隔离
+### 16.4 多租户隔离
 
 - 权限规则包含域信息，确保多租户隔离
 - 查询端点时需要考虑域权限
 
-## 16. 变更历史
+## 17. 变更历史
 
 | 版本 | 日期 | 变更说明                                         | 作者 |
 | ---- | ---- | ------------------------------------------------ | ---- |

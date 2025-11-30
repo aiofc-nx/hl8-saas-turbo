@@ -365,7 +365,7 @@ interface IAuthentication {
 
 ### Casbin 模型配置
 
-Casbin 模型文件（`model.conf`）示例：
+Casbin 模型文件（`model.conf`）定义了权限验证的规则和逻辑。以下是本系统使用的模型配置及其详细说明：
 
 ```ini
 [request_definition]
@@ -383,6 +383,213 @@ e = some(where (p.eft == allow)) && !some(where (p.eft == deny))
 [matchers]
 m = g(r.sub, p.sub, r.dom) && r.obj == p.obj && r.act == p.act && r.dom == p.dom
 ```
+
+#### 配置说明
+
+##### 1. [request_definition] - 请求定义
+
+定义权限验证请求的结构，包含 4 个参数：
+
+```ini
+r = sub, obj, act, dom
+```
+
+**参数说明**：
+
+| 参数 | 说明 | 示例值 |
+|------|------|--------|
+| `sub` | 主体（Subject），通常是用户 ID 或角色代码 | `"user-123"` 或 `"admin"` |
+| `obj` | 对象（Object），通常是资源类型 | `"user"`、`"role"`、`"domain"` |
+| `act` | 操作（Action），通常是操作类型 | `"read"`、`"write"`、`"delete"` |
+| `dom` | 域（Domain），用于多租户隔离 | `"example.com"`、`"tenant-a"` |
+
+**使用场景**：
+
+当用户访问资源时，系统会构造一个请求：`(sub, obj, act, dom)`，例如：
+- `("user-123", "user", "read", "example.com")` - 用户 user-123 在 example.com 域下读取 user 资源
+
+##### 2. [policy_definition] - 策略定义
+
+定义权限策略的结构，包含 5 个参数：
+
+```ini
+p = sub, obj, act, dom, eft
+```
+
+**参数说明**：
+
+| 参数 | 说明 | 示例值 |
+|------|------|--------|
+| `sub` | 主体（Subject），通常是角色代码 | `"admin"`、`"user"` |
+| `obj` | 对象（Object），资源类型 | `"user"`、`"role"` |
+| `act` | 操作（Action），操作类型 | `"read"`、`"write"`、`"delete"` |
+| `dom` | 域（Domain），多租户隔离 | `"example.com"` |
+| `eft` | 效果（Effect），权限效果 | `"allow"`（允许）或 `"deny"`（拒绝） |
+
+**策略示例**：
+
+```
+p, admin, user, read, example.com, allow
+p, admin, user, write, example.com, allow
+p, user, user, read, example.com, allow
+p, admin, user, delete, example.com, deny
+```
+
+**策略含义**：
+
+- `p, admin, user, read, example.com, allow` - 管理员角色在 example.com 域下可以读取 user 资源
+- `p, admin, user, write, example.com, allow` - 管理员角色在 example.com 域下可以写入 user 资源
+- `p, user, user, read, example.com, allow` - 普通用户角色在 example.com 域下可以读取 user 资源
+- `p, admin, user, delete, example.com, deny` - 管理员角色在 example.com 域下不能删除 user 资源
+
+##### 3. [role_definition] - 角色定义
+
+定义角色继承关系，使用 RBAC（基于角色的访问控制）模型：
+
+```ini
+g = _, _, _
+```
+
+**参数说明**：
+
+| 参数 | 说明 | 示例值 |
+|------|------|--------|
+| 第一个参数 | 用户或子角色 | `"user-123"` 或 `"editor"` |
+| 第二个参数 | 角色或父角色 | `"admin"` 或 `"manager"` |
+| 第三个参数 | 域（Domain），用于多租户隔离 | `"example.com"` |
+
+**角色继承示例**：
+
+```
+g, user-123, admin, example.com
+g, editor, manager, example.com
+```
+
+**角色继承含义**：
+
+- `g, user-123, admin, example.com` - 用户 user-123 在 example.com 域下拥有 admin 角色
+- `g, editor, manager, example.com` - editor 角色在 example.com 域下继承 manager 角色的权限
+
+**角色继承链**：
+
+如果 `editor` 继承 `manager`，`manager` 继承 `admin`，则：
+- `editor` 拥有 `manager` 和 `admin` 的所有权限
+- 角色继承支持多级继承
+
+##### 4. [policy_effect] - 策略效果
+
+定义权限验证的结果判断逻辑：
+
+```ini
+e = some(where (p.eft == allow)) && !some(where (p.eft == deny))
+```
+
+**逻辑说明**：
+
+- `some(where (p.eft == allow))` - 至少有一个策略允许（allow）
+- `!some(where (p.eft == deny))` - 没有任何策略拒绝（deny）
+- `&&` - 两个条件都必须满足（AND 逻辑）
+
+**验证结果**：
+
+- **允许访问**：至少有一个策略允许，且没有任何策略拒绝
+- **拒绝访问**：有策略明确拒绝，或没有任何策略允许
+
+**示例场景**：
+
+1. **场景 1**：用户有 `allow` 策略，没有 `deny` 策略
+   - 结果：✅ 允许访问
+
+2. **场景 2**：用户有 `allow` 策略，也有 `deny` 策略
+   - 结果：❌ 拒绝访问（deny 优先级更高）
+
+3. **场景 3**：用户没有任何策略
+   - 结果：❌ 拒绝访问（没有 allow 策略）
+
+##### 5. [matchers] - 匹配器
+
+定义权限验证的匹配规则，将请求与策略进行匹配：
+
+```ini
+m = g(r.sub, p.sub, r.dom) && r.obj == p.obj && r.act == p.act && r.dom == p.dom
+```
+
+**匹配逻辑说明**：
+
+1. **角色匹配**：`g(r.sub, p.sub, r.dom)`
+   - 检查请求的主体（`r.sub`）是否拥有策略中的角色（`p.sub`）
+   - 在指定的域（`r.dom`）下进行角色检查
+   - `g()` 函数会递归检查角色继承关系
+
+2. **资源匹配**：`r.obj == p.obj`
+   - 请求的资源（`r.obj`）必须与策略的资源（`p.obj`）完全匹配
+
+3. **操作匹配**：`r.act == p.act`
+   - 请求的操作（`r.act`）必须与策略的操作（`p.act`）完全匹配
+
+4. **域匹配**：`r.dom == p.dom`
+   - 请求的域（`r.dom`）必须与策略的域（`p.dom`）完全匹配
+   - **这是多租户隔离的关键**：不同域的策略相互独立
+
+**匹配示例**：
+
+**请求**：`("user-123", "user", "read", "example.com")`
+
+**策略 1**：`p, admin, user, read, example.com, allow`
+- 角色匹配：需要检查 `g(user-123, admin, example.com)` - 如果用户拥有 admin 角色，则匹配
+- 资源匹配：`"user" == "user"` ✅
+- 操作匹配：`"read" == "read"` ✅
+- 域匹配：`"example.com" == "example.com"` ✅
+- 结果：如果角色匹配，则策略匹配 ✅
+
+**策略 2**：`p, admin, user, read, other.com, allow`
+- 域匹配：`"example.com" == "other.com"` ❌
+- 结果：策略不匹配 ❌（域不匹配，即使其他条件都满足）
+
+#### 多租户隔离机制
+
+本模型通过 `dom`（域）参数实现多租户隔离：
+
+1. **请求中的域**：从用户上下文中获取，通常是用户所属的域
+2. **策略中的域**：策略必须属于特定域
+3. **域匹配**：只有请求的域和策略的域完全匹配时，策略才会生效
+
+**隔离效果**：
+
+- ✅ 不同域的策略相互独立，互不影响
+- ✅ 用户只能访问自己域下的资源
+- ✅ 角色和权限都是域级别的，不能跨域使用
+
+**示例**：
+
+```
+# example.com 域的策略
+p, admin, user, read, example.com, allow
+
+# other.com 域的策略
+p, admin, user, read, other.com, allow
+```
+
+即使用户在两个域都拥有 admin 角色，但：
+- 在 `example.com` 域下，只能使用 `example.com` 域的策略
+- 在 `other.com` 域下，只能使用 `other.com` 域的策略
+
+#### 模型配置总结
+
+| 配置项 | 作用 | 关键点 |
+|--------|------|--------|
+| **request_definition** | 定义请求结构 | 包含 4 个参数：主体、对象、操作、域 |
+| **policy_definition** | 定义策略结构 | 包含 5 个参数：主体、对象、操作、域、效果 |
+| **role_definition** | 定义角色继承 | 支持多级角色继承，域级别隔离 |
+| **policy_effect** | 定义验证逻辑 | allow 和 deny 的组合判断 |
+| **matchers** | 定义匹配规则 | 包含角色、资源、操作、域的匹配，**域匹配是多租户隔离的关键** |
+
+#### 注意事项
+
+1. **域参数是必需的**：所有请求和策略都必须包含域信息
+2. **域匹配是严格的**：域必须完全匹配，不支持通配符或继承
+3. **角色继承是域级别的**：角色继承关系只在同一域内有效
+4. **策略效果优先级**：`deny` 策略优先级高于 `allow` 策略
 
 ### 数据库实体
 
