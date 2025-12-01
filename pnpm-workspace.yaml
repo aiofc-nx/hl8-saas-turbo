@@ -4,7 +4,7 @@ packages:
 - libs/infra/*
 - libs/shared/*
 - packages/*
-- samples/*
+
 onlyBuiltDependencies:
 - '@nestjs/core'
 - '@scarf/scarf'

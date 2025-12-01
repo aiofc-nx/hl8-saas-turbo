@@ -88,6 +88,7 @@ export class UserCreateHandler
       avatar: command.avatar,
       email: command.email,
       phoneNumber: command.phoneNumber,
+      isEmailVerified: false, // 新注册用户邮箱默认为未验证状态
       createdAt: new Date(),
       createdBy: command.uid,
     };

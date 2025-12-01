@@ -20,7 +20,9 @@ export type UserOptionalProperties = Readonly<
     avatar: string | null;
     email: string | null;
     phoneNumber: string | null;
-  }>
+  }> & {
+    isEmailVerified: boolean;
+  }
 >;
 
 export type UserProperties = UserEssentialProperties &
@@ -61,4 +63,10 @@ export class UserReadModel extends UpdateAuditInfo {
 
   @ApiProperty({ description: 'Phone number of the user', nullable: true })
   phoneNumber: string | null;
+
+  @ApiProperty({
+    description: 'Whether the user email has been verified',
+    default: false,
+  })
+  isEmailVerified: boolean;
 }

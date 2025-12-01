@@ -186,10 +186,137 @@ export class AuthenticationService {
     const result = await this.repository.findRolesByUserId(user.id);
     const key = `${CacheConstant.AUTH_TOKEN_PREFIX}${user.id}`;
     await RedisUtility.instance.del(key);
-    await RedisUtility.instance.sadd(key, ...result);
+    // 只有当角色列表不为空时才添加到 Redis
+    if (result.size > 0) {
+      await RedisUtility.instance.sadd(key, ...Array.from(result));
+    }
     await RedisUtility.instance.expire(key, this.securityConfig.jwtExpiresIn);
 
     return tokens;
+  }
+
+  /**
+   * 邮箱验证后自动登录
+   *
+   * 在用户通过邮箱验证后，自动生成访问令牌和刷新令牌，无需密码验证。
+   * 此方法用于邮箱验证流程，用户已经通过 OTP 验证码验证了邮箱所有权。
+   *
+   * @param userId - 用户 ID
+   * @param username - 用户名
+   * @param domain - 用户所属域
+   * @param ip - 客户端 IP 地址
+   * @param region - 客户端地理位置
+   * @param userAgent - 用户代理字符串
+   * @param requestId - 请求 ID
+   * @param type - 设备类型
+   * @param port - 客户端端口
+   * @returns 包含访问令牌和刷新令牌的对象
+   *
+   * @remarks
+   * - 此方法跳过密码验证，因为用户已经通过邮箱验证
+   * - 会发布 UserLoggedInEvent 和 TokenGeneratedEvent 事件
+   * - 会将用户角色信息缓存到 Redis
+   */
+  async verifyEmailAndLogin(
+    userId: string,
+    username: string,
+    domain: string,
+    ip: string,
+    region: string,
+    userAgent: string,
+    requestId: string,
+    type: string,
+    port: number,
+  ): Promise<{ token: string; refreshToken: string }> {
+    const tokens = await this.generateAccessToken(userId, username, domain);
+
+    const user = await this.repository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const userAggregate = new User(user);
+    userAggregate.apply(
+      new UserLoggedInEvent(
+        userId,
+        username,
+        domain,
+        ip,
+        region,
+        userAgent,
+        requestId,
+        type,
+        port,
+      ),
+    );
+    userAggregate.apply(
+      new TokenGeneratedEvent(
+        tokens.token,
+        tokens.refreshToken,
+        userId,
+        username,
+        domain,
+        ip,
+        region,
+        userAgent,
+        requestId,
+        type,
+        port,
+      ),
+    );
+    this.publisher.mergeObjectContext(userAggregate);
+    userAggregate.commit();
+
+    const result = await this.repository.findRolesByUserId(userId);
+    const key = `${CacheConstant.AUTH_TOKEN_PREFIX}${userId}`;
+    await RedisUtility.instance.del(key);
+    // 只有当角色列表不为空时才添加到 Redis
+    if (result.size > 0) {
+      await RedisUtility.instance.sadd(key, ...Array.from(result));
+    }
+    await RedisUtility.instance.expire(key, this.securityConfig.jwtExpiresIn);
+
+    return tokens;
+  }
+
+  /**
+   * 用户退出登录
+   *
+   * 使指定的刷新令牌失效，并清除用户角色缓存。
+   * 退出后，该刷新令牌将无法再用于刷新访问令牌。
+   *
+   * @param refreshToken - 刷新令牌字符串
+   * @returns Promise<void>
+   *
+   * @throws {NotFoundException} 当刷新令牌不存在时抛出
+   *
+   * @remarks
+   * - 通过查询总线查找令牌详情
+   * - 将令牌状态更新为已使用（USED），使其失效
+   * - 清除 Redis 中该用户的角色缓存
+   * - 即使令牌不存在或已失效，也尝试清除缓存（幂等性）
+   */
+  async signOut(refreshToken: string): Promise<void> {
+    // 尝试查找令牌详情
+    const tokenDetails = await this.queryBus.execute<
+      TokensByRefreshTokenQuery,
+      TokensReadModel | null
+    >(new TokensByRefreshTokenQuery(refreshToken));
+
+    if (tokenDetails) {
+      // 将令牌状态更新为已使用，使其失效
+      const tokensAggregate = new TokensEntity(tokenDetails);
+      await tokensAggregate.refreshTokenCheck();
+      this.publisher.mergeObjectContext(tokensAggregate);
+      tokensAggregate.commit();
+
+      // 清除 Redis 中该用户的角色缓存
+      const key = `${CacheConstant.AUTH_TOKEN_PREFIX}${tokenDetails.userId}`;
+      await RedisUtility.instance.del(key);
+    }
+    // 如果令牌不存在，也尝试清除缓存（基于 refreshToken 中的用户信息）
+    // 注意：这里无法从 refreshToken 直接解析用户信息，因为需要密钥
+    // 所以只在找到令牌时才清除缓存
   }
 
   /**

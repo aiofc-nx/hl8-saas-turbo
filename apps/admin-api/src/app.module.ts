@@ -28,6 +28,15 @@ import { JwtStrategy } from '@hl8/strategies';
 import { IAuthentication } from '@hl8/typings';
 import { getConfigPath } from '@hl8/utils';
 
+import {
+  MAIL_CONFIG,
+  MailModule,
+  MailService,
+  type MailConfig,
+} from '@hl8/mail';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { APP_NAME, APP_URL } from '@repo/constants/app';
+
 import { ApiModule } from './api/api.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -178,6 +187,70 @@ class ThrottlerStorageAdapter implements ThrottlerStorage {
 
     // API Key 模块
     ApiKeyModule,
+
+    // 邮件模块配置
+    // 配置 MailerModule（底层邮件发送模块）
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<ConfigKeyPaths>) => {
+        const mailHost = process.env.MAIL_HOST || 'smtp.gmail.com';
+        const mailPort = parseInt(process.env.MAIL_PORT || '587', 10);
+        const mailSecure = process.env.MAIL_SECURE === 'true';
+        const mailUsername = process.env.MAIL_USERNAME || '';
+        const mailPassword = process.env.MAIL_PASSWORD || '';
+
+        // 验证邮件配置
+        if (mailHost === 'smtp.example.com' || !mailUsername || !mailPassword) {
+          console.warn(
+            '⚠️  邮件配置未正确设置。请在 .env 文件中配置以下环境变量：',
+          );
+          console.warn('   - MAIL_HOST: SMTP 服务器地址（如 smtp.gmail.com）');
+          console.warn('   - MAIL_PORT: SMTP 端口（默认 587）');
+          console.warn('   - MAIL_SECURE: 是否使用 SSL/TLS（true/false）');
+          console.warn('   - MAIL_USERNAME: 发件人邮箱地址');
+          console.warn('   - MAIL_PASSWORD: 邮箱密码或授权码');
+          console.warn('   邮件发送功能将不可用，直到配置完成。');
+        }
+
+        return {
+          transport: {
+            host: mailHost,
+            port: mailPort,
+            secure: mailSecure,
+            auth: {
+              user: mailUsername,
+              pass: mailPassword,
+            },
+          },
+        };
+      },
+    }),
+    // 配置 MailModule（邮件服务封装模块，来自 @hl8/mail）
+    {
+      module: MailModule,
+      providers: [
+        MailService,
+        {
+          provide: MAIL_CONFIG,
+          useClass: class MailConfigProvider implements MailConfig {
+            get MAIL_USERNAME(): string {
+              return process.env.MAIL_USERNAME || '';
+            }
+
+            get APP_NAME(): string {
+              return APP_NAME;
+            }
+
+            get APP_URL(): string {
+              return APP_URL;
+            }
+          },
+        },
+      ],
+      exports: [MailService],
+      global: true,
+    },
 
     // 引导模块
     BootstrapModule,

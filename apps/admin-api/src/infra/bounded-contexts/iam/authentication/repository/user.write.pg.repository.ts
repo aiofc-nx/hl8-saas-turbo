@@ -127,6 +127,7 @@ export class UserWriteRepository implements UserWriteRepoPort {
         avatar: user.avatar,
         email: user.email,
         phoneNumber: user.phoneNumber,
+        isEmailVerified: user.isEmailVerified,
         updatedAt: user.createdAt,
         updatedBy: user.createdBy,
       },

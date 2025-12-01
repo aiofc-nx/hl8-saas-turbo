@@ -23,7 +23,18 @@
 - **事件驱动**：通过领域事件实现模块间解耦和异步处理
 - **端口适配器模式**：通过端口接口定义仓储契约，由基础设施层实现
 
-## 2. 领域模型
+## 2. 领域层（Domain Layer）
+
+领域层是访问密钥有界上下文的核心业务逻辑层，包含领域模型、业务规则和领域概念。
+
+**详细文档**：请参阅 [领域层开发文档](./domain/README.md)
+
+领域层包含以下组件：
+
+- **聚合根（Aggregate Root）**：`AccessKey` - 访问密钥的领域模型
+- **读模型（Read Model）**：`AccessKeyReadModel` - 用于查询和展示的模型（不包含敏感信息）
+- **领域事件（Domain Events）**：`AccessKeyCreatedEvent`、`AccessKeyDeletedEvent`
+- **类型定义（Type Definitions）**：访问密钥属性的类型定义
 
 ### 2.1 聚合根
 

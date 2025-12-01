@@ -19,14 +19,21 @@ export class UserUpdateHandler
   private readonly userReadRepoPort: UserReadRepoPort;
 
   async execute(command: UserUpdateCommand) {
-    const existingUser = await this.userReadRepoPort.getUserByUsername(
+    // 检查用户名是否已被其他用户使用
+    const userByUsername = await this.userReadRepoPort.getUserByUsername(
       command.username,
     );
 
-    if (existingUser && existingUser.id !== command.id) {
+    if (userByUsername && userByUsername.id !== command.id) {
       throw new BadRequestException(
         `A user with account ${command.username} already exists.`,
       );
+    }
+
+    // 获取现有用户信息，保留邮箱验证状态
+    const existingUser = await this.userReadRepoPort.findUserById(command.id);
+    if (!existingUser) {
+      throw new BadRequestException('User not found.');
     }
 
     const userUpdateProperties: UserUpdateProperties = {
@@ -36,6 +43,7 @@ export class UserUpdateHandler
       avatar: command.avatar,
       email: command.email,
       phoneNumber: command.phoneNumber,
+      isEmailVerified: existingUser.isEmailVerified ?? false, // 保留现有验证状态
       createdAt: new Date(),
       createdBy: command.uid,
     };
