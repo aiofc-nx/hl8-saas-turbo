@@ -66,4 +66,20 @@ export class SysDomain {
    */
   @Property()
   createdBy!: string;
+
+  /**
+   * 更新时间
+   *
+   * @description 记录最后更新时间
+   */
+  @Property({ nullable: true })
+  updatedAt?: Date | null;
+
+  /**
+   * 更新者
+   *
+   * @description 记录最后更新者
+   */
+  @Property({ nullable: true })
+  updatedBy?: string | null;
 }

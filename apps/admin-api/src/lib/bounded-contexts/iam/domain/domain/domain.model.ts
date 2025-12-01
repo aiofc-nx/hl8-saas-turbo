@@ -84,6 +84,20 @@ export class Domain extends AggregateRoot implements IDomain {
   createdBy: string;
 
   /**
+   * 更新时间
+   *
+   * @description 域的最后更新时间
+   */
+  updatedAt?: Date | null;
+
+  /**
+   * 更新者
+   *
+   * @description 最后更新域的用户 ID
+   */
+  updatedBy?: string | null;
+
+  /**
    * 从创建属性创建域实例
    *
    * @description 使用创建属性对象创建域聚合根实例
