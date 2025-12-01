@@ -47,6 +47,7 @@ const providers = [
     // 虽然 AuthZModule 是全局的，但显式导入可以确保依赖解析正确
     AuthZModule,
   ],
-  exports: [AuthenticationModule],
+  providers: [...providers],
+  exports: [AuthenticationModule, UserReadRepoPortToken],
 })
 export class IamModule {}

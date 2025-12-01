@@ -1,6 +1,8 @@
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 
+import { UlidGenerator } from '@hl8/utils';
+
 import { LoginLogEntity } from '@/lib/bounded-contexts/log-audit/login-log/domain/login-log.entity';
 import type { LoginLogWriteRepoPort } from '@/lib/bounded-contexts/log-audit/login-log/ports/login-log.write.repo-port';
 
@@ -34,7 +36,12 @@ export class LoginLogWriteRepository implements LoginLogWriteRepoPort {
       createdAt: new Date(),
       createdBy: loginLog.userId,
     };
-    const newLoginLog = this.em.create('SysLoginLog', loginLogData);
+    // 生成唯一 ID（使用 ULID）
+    const id = UlidGenerator.generate();
+    const newLoginLog = this.em.create('SysLoginLog', {
+      ...loginLogData,
+      id,
+    });
     await this.em.persistAndFlush(newLoginLog);
   }
 }

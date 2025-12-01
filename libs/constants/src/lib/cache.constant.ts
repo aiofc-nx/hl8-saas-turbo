@@ -14,4 +14,6 @@ export const CacheConstant = {
   CACHE_PREFIX: 'hl8:cache:',
   /** 认证令牌缓存前缀 */
   AUTH_TOKEN_PREFIX: 'hl8:cache:user:',
+  /** 邮箱验证码缓存前缀 */
+  EMAIL_VERIFICATION_PREFIX: 'hl8:cache:email:verification:',
 };

@@ -21,7 +21,12 @@ export class TokensWriteRepository implements TokensWriteRepoPort {
    */
   async save(tokens: TokensEntity): Promise<void> {
     const tokensData = { ...tokens };
-    const newTokens = this.em.create('SysTokens', tokensData);
+    // 使用 refreshToken 作为主键 ID（根据实体注释）
+    const newTokens = this.em.create('SysTokens', {
+      ...tokensData,
+      id: tokens.refreshToken,
+      createdAt: new Date(),
+    });
     await this.em.persistAndFlush(newTokens);
   }
 

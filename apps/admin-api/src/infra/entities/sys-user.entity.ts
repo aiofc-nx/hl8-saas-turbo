@@ -84,6 +84,14 @@ export class SysUser {
   phoneNumber?: string | null;
 
   /**
+   * 邮箱是否已验证
+   *
+   * @description 标识用户邮箱是否已经通过验证，未验证邮箱的用户不能登录
+   */
+  @Property({ default: false })
+  isEmailVerified!: boolean;
+
+  /**
    * 创建时间
    *
    * @description 记录创建时间

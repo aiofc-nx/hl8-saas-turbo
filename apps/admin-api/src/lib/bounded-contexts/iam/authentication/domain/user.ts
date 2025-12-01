@@ -130,6 +130,13 @@ export class User extends AggregateRoot implements IUser {
   readonly phoneNumber: string | null;
 
   /**
+   * 邮箱是否已验证
+   *
+   * @description 标识用户邮箱是否已经通过验证，未验证邮箱的用户不能登录
+   */
+  readonly isEmailVerified: boolean;
+
+  /**
    * 创建时间
    *
    * @description 用户的创建时间
@@ -189,8 +196,9 @@ export class User extends AggregateRoot implements IUser {
    * @description
    * 执行用户登录逻辑，包括：
    * 1. 检查用户状态是否启用
-   * 2. 验证密码是否正确
-   * 3. 返回登录结果
+   * 2. 检查邮箱是否已验证（如果用户有邮箱）
+   * 3. 验证密码是否正确
+   * 4. 返回登录结果
    *
    * @param password - 用户输入的密码
    * @returns 返回登录结果，包含成功标志和消息
@@ -202,6 +210,14 @@ export class User extends AggregateRoot implements IUser {
       return {
         success: false,
         message: `User is ${this.status.toLowerCase()}.`,
+      };
+    }
+
+    // 如果用户有邮箱，必须验证邮箱后才能登录
+    if (this.email && !this.isEmailVerified) {
+      return {
+        success: false,
+        message: '邮箱未验证，请先验证邮箱后再登录。',
       };
     }
 
