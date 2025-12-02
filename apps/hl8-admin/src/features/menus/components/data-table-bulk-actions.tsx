@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { DataTableBulkActions as BulkActionsToolbar } from '@/components/data-table'
-import { DomainsMultiDeleteDialog } from './domains-multi-delete-dialog'
+import { MenusMultiDeleteDialog } from './menus-multi-delete-dialog'
 
 type DataTableBulkActionsProps<TData> = {
   table: Table<TData>
@@ -21,7 +21,7 @@ export function DataTableBulkActions<TData>({
 
   return (
     <>
-      <BulkActionsToolbar table={table} entityName='domain'>
+      <BulkActionsToolbar table={table} entityName='menu'>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -29,20 +29,20 @@ export function DataTableBulkActions<TData>({
               size='icon'
               onClick={() => setShowDeleteConfirm(true)}
               className='size-8'
-              aria-label='Delete selected domains'
-              title='Delete selected domains'
+              aria-label='Delete selected menus'
+              title='Delete selected menus'
             >
               <Trash2 />
-              <span className='sr-only'>Delete selected domains</span>
+              <span className='sr-only'>Delete selected menus</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Delete selected domains</p>
+            <p>Delete selected menus</p>
           </TooltipContent>
         </Tooltip>
       </BulkActionsToolbar>
 
-      <DomainsMultiDeleteDialog
+      <MenusMultiDeleteDialog
         table={table}
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}

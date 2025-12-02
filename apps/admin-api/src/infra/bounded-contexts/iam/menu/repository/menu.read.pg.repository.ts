@@ -3,11 +3,14 @@ import { Injectable } from '@nestjs/common';
 
 import { Status } from '@/lib/shared/enums/status.enum';
 
+import { PaginationResult } from '@hl8/rest';
+
 import {
   MenuProperties,
   MenuTreeProperties,
 } from '@/lib/bounded-contexts/iam/menu/domain/menu.read.model';
 import type { MenuReadRepoPort } from '@/lib/bounded-contexts/iam/menu/ports/menu.read.repo-port';
+import { PageMenusQuery } from '@/lib/bounded-contexts/iam/menu/queries/page-menus.query';
 
 /**
  * Menu 读取仓储实现
@@ -193,5 +196,46 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
     );
 
     return roleMenus.map((rm: any) => rm.menuId);
+  }
+
+  /**
+   * 分页查询菜单
+   *
+   * @param query - 分页查询参数
+   * @returns 分页结果
+   */
+  async pageMenus(
+    query: PageMenusQuery,
+  ): Promise<PaginationResult<MenuProperties>> {
+    const where: FilterQuery<any> = {};
+
+    if (query.menuName) {
+      where.menuName = { $like: `%${query.menuName}%` };
+    }
+
+    if (query.routeName) {
+      where.routeName = { $like: `%${query.routeName}%` };
+    }
+
+    if (query.menuType) {
+      where.menuType = query.menuType;
+    }
+
+    if (query.status) {
+      where.status = query.status;
+    }
+
+    const [menus, total] = await this.em.findAndCount('SysMenu', where, {
+      limit: query.size,
+      offset: (query.current - 1) * query.size,
+      orderBy: [{ order: 'ASC' }],
+    });
+
+    return new PaginationResult<MenuProperties>(
+      query.current,
+      query.size,
+      total,
+      menus as MenuProperties[],
+    );
   }
 }

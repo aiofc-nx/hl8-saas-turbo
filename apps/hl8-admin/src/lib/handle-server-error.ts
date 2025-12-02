@@ -66,21 +66,129 @@ export function handleServerError(error: unknown) {
     if (response) {
       const status = response.status
 
+      // 开发环境下输出详细错误信息用于调试
+      if (import.meta.env.DEV && (status === 400 || status === 422)) {
+        // eslint-disable-next-line no-console
+        console.log('验证错误详情:', {
+          status,
+          errorData,
+          responseData: response.data,
+          hasErrors: !!errorData?.errors,
+          errorsKeys: errorData?.errors ? Object.keys(errorData.errors) : [],
+          errorsValue: errorData?.errors,
+        })
+      }
+
       switch (status) {
         case 400:
-          // 验证错误
+        case 422:
+          // 验证错误（400 Bad Request 或 422 Unprocessable Entity）
           if (errorData) {
             // 处理字段级别的验证错误
+            // 检查 errors 字段是否存在且不为空
             if (errorData.errors) {
-              const firstError = Object.values(errorData.errors)[0]
-              errMsg = Array.isArray(firstError)
-                ? firstError[0]
-                : '请求参数验证失败'
+              const errorKeys = Object.keys(errorData.errors)
+              if (errorKeys.length > 0) {
+                const errorEntries = Object.entries(errorData.errors)
+                // 提取所有验证错误，组合成更详细的错误消息
+                const errorMessages = errorEntries
+                  .map(([field, messages]) => {
+                    // 处理不同的错误格式
+                    let msg: string
+                    if (Array.isArray(messages)) {
+                      msg = messages[0] || '验证失败'
+                    } else if (
+                      typeof messages === 'object' &&
+                      messages !== null
+                    ) {
+                      // 处理嵌套对象，递归提取所有错误消息
+                      const extractMessages = (obj: unknown): string[] => {
+                        if (Array.isArray(obj)) {
+                          return obj.filter((item) => typeof item === 'string')
+                        }
+                        if (typeof obj === 'object' && obj !== null) {
+                          const values = Object.values(obj)
+                          return values.flatMap((val) => extractMessages(val))
+                        }
+                        return []
+                      }
+                      const allMessages = extractMessages(messages)
+                      msg = allMessages[0] || '验证失败'
+                    } else {
+                      msg = String(messages || '验证失败')
+                    }
+                    return `${field}: ${msg}`
+                  })
+                  .filter((msg) => msg.length > 0 && !msg.includes('验证失败'))
+                  .join('; ')
+                errMsg = errorMessages || '请求参数验证失败'
+              } else {
+                // errors 对象存在但为空，检查是否有其他错误信息
+                // 可能是错误格式不同，尝试从整个 errorData 中提取
+                const allKeys = Object.keys(errorData)
+                const errorInfoKeys = allKeys.filter(
+                  (key) =>
+                    key !== 'message' &&
+                    key !== 'statusCode' &&
+                    key !== 'errors'
+                )
+                if (errorInfoKeys.length > 0) {
+                  // 尝试从其他字段提取错误信息
+                  const errorInfo = errorInfoKeys
+                    .map((key) => {
+                      const value = errorData[key as keyof typeof errorData]
+                      if (typeof value === 'string') {
+                        return value
+                      }
+                      if (Array.isArray(value) && value.length > 0) {
+                        return value[0]
+                      }
+                      return null
+                    })
+                    .filter((v) => v !== null)
+                    .join('; ')
+                  errMsg = errorInfo || '请求参数验证失败，请检查表单字段'
+                } else {
+                  errMsg = '请求参数验证失败，请检查表单字段'
+                }
+              }
             } else if (errorData.message) {
-              // 处理消息数组或字符串
-              errMsg = Array.isArray(errorData.message)
+              // 如果只有 message 字段，检查是否是 "Validation failed"
+              // 如果是，尝试从其他地方提取错误信息
+              const message = Array.isArray(errorData.message)
                 ? errorData.message[0]
                 : errorData.message
+
+              // 如果消息是 "Validation failed"，尝试查找其他错误信息
+              if (
+                message === 'Validation failed' ||
+                message === 'validation failed'
+              ) {
+                // 检查是否有其他字段包含错误信息
+                const errorKeys = Object.keys(errorData).filter(
+                  (key) => key !== 'message' && key !== 'statusCode'
+                )
+                if (errorKeys.length > 0) {
+                  // 尝试从其他字段提取错误信息
+                  const firstKey = errorKeys[0]
+                  const firstValue =
+                    errorData[firstKey as keyof typeof errorData]
+                  if (typeof firstValue === 'string') {
+                    errMsg = firstValue
+                  } else if (
+                    Array.isArray(firstValue) &&
+                    firstValue.length > 0
+                  ) {
+                    errMsg = firstValue[0]
+                  } else {
+                    errMsg = '请求参数验证失败，请检查表单字段'
+                  }
+                } else {
+                  errMsg = '请求参数验证失败，请检查表单字段'
+                }
+              } else {
+                errMsg = message
+              }
             } else if (errorData.title) {
               errMsg = errorData.title
             } else {

@@ -51,7 +51,12 @@ export class MenuReadModel extends UpdateAuditInfo {
   @ApiProperty({ description: 'The unique identifier of the menu', example: 1 })
   id: number;
 
-  @ApiProperty({ description: 'Type of the menu' })
+  @ApiProperty({
+    description: 'Type of the menu',
+    enum: ['MENU', 'DIRECTORY', 'BUTTON'],
+    type: 'string',
+    example: 'MENU',
+  })
   menuType: MenuType;
 
   @ApiProperty({ description: 'Name of the menu', example: 'Settings' })
@@ -74,7 +79,9 @@ export class MenuReadModel extends UpdateAuditInfo {
 
   @ApiProperty({
     description: 'Status of the menu',
-    enum: Object.values(Status),
+    enum: ['ENABLED', 'DISABLED'],
+    type: 'string',
+    example: 'ENABLED',
   })
   status: Status;
 

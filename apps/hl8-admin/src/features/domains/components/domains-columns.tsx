@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table'
 import { LongText } from '@/components/long-text'
-import { statusColors, statuses } from '../data/data'
+import { statusColors } from '../data/data'
 import { type Domain } from '../data/schema'
 import { DataTableRowActions } from './data-table-row-actions'
 

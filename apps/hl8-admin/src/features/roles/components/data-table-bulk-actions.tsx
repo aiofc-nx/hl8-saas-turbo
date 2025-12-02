@@ -8,7 +8,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { DataTableBulkActions as BulkActionsToolbar } from '@/components/data-table'
-import { type Role } from '../data/schema'
 import { RolesMultiDeleteDialog } from './roles-multi-delete-dialog'
 
 type DataTableBulkActionsProps<TData> = {

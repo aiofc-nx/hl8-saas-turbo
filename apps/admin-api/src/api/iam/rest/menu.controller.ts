@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -16,14 +17,20 @@ import { MenuService } from '@/lib/bounded-contexts/iam/menu/application/service
 import { MenuCreateCommand } from '@/lib/bounded-contexts/iam/menu/commands/menu-create.command';
 import { MenuDeleteCommand } from '@/lib/bounded-contexts/iam/menu/commands/menu-delete.command';
 import { MenuUpdateCommand } from '@/lib/bounded-contexts/iam/menu/commands/menu-update.command';
-import type { MenuTreeProperties } from '@/lib/bounded-contexts/iam/menu/domain/menu.read.model';
+import {
+  MenuProperties,
+  MenuReadModel,
+  type MenuTreeProperties,
+} from '@/lib/bounded-contexts/iam/menu/domain/menu.read.model';
 import { MenuIdsByRoleIdAndDomainQuery } from '@/lib/bounded-contexts/iam/menu/queries/menu-ids.by-role_id&domain.query';
 import { MenusQuery } from '@/lib/bounded-contexts/iam/menu/queries/menus.query';
 import { MenusTreeQuery } from '@/lib/bounded-contexts/iam/menu/queries/menus.tree.query';
+import { PageMenusQuery } from '@/lib/bounded-contexts/iam/menu/queries/page-menus.query';
 
-import { Public } from '@hl8/decorators';
-import { ApiRes } from '@hl8/rest';
+import { ApiResponseDoc, Public } from '@hl8/decorators';
+import { ApiRes, PaginationResult } from '@hl8/rest';
 
+import { PageMenusDto } from '../dto/page-menus.dto';
 import { RouteCreateDto, RouteUpdateDto } from '../dto/route.dto';
 
 /**
@@ -88,6 +95,43 @@ export class MenuController {
   }
 
   /**
+   * 分页查询菜单列表
+   *
+   * @description
+   * 根据查询条件分页获取菜单列表，支持按菜单名称、路由名称、菜单类型和状态筛选。
+   *
+   * @param queryDto - 分页查询参数，包含页码、页大小、菜单名称、路由名称、菜单类型、状态等筛选条件
+   * @returns 返回分页结果，包含菜单列表和分页信息
+   *
+   * @example
+   * ```typescript
+   * GET /route?current=1&size=10&menuName=用户&routeName=user&menuType=MENU&status=ENABLED
+   * ```
+   */
+  @Get()
+  @ApiOperation({
+    summary: 'Retrieve Paginated Menus',
+  })
+  @ApiResponseDoc({ type: MenuReadModel, isPaged: true })
+  async page(
+    @Query() queryDto: PageMenusDto,
+  ): Promise<ApiRes<PaginationResult<MenuProperties>>> {
+    const query = new PageMenusQuery({
+      current: queryDto.current,
+      size: queryDto.size,
+      menuName: queryDto.menuName,
+      routeName: queryDto.routeName,
+      menuType: queryDto.menuType,
+      status: queryDto.status,
+    });
+    const result = await this.queryBus.execute<
+      PageMenusQuery,
+      PaginationResult<MenuProperties>
+    >(query);
+    return ApiRes.success(result);
+  }
+
+  /**
    * 获取所有路由列表
    *
    * @description
@@ -97,12 +141,12 @@ export class MenuController {
    *
    * @example
    * ```typescript
-   * GET /route
+   * GET /route/all
    * ```
    */
-  @Get()
+  @Get('all')
   @ApiOperation({
-    summary: 'Routes',
+    summary: 'Get All Routes',
   })
   async routes() {
     const result = await this.queryBus.execute<

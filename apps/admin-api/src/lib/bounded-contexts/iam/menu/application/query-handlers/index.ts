@@ -5,6 +5,7 @@ import { MenusByIdsQueryHandler } from './menus.by-ids.query.handler';
 import { MenusByRoleCodeAndDomainQueryQueryHandler } from './menus.by-role_code&domain.query.handler';
 import { MenusQueryHandler } from './menus.query.handler';
 import { MenusTreeQueryHandler } from './menus.tree.query.handler';
+import { PageMenusQueryHandler } from './page-menus.query.handler';
 
 export const QueryHandlers = [
   MenusByRoleCodeAndDomainQueryQueryHandler,
@@ -14,4 +15,5 @@ export const QueryHandlers = [
   MenuIdsByRoleCodeAndDomainQueryHandler,
   MenuIdsByRoleIdAndDomainQueryHandler,
   MenusTreeQueryHandler,
+  PageMenusQueryHandler,
 ];

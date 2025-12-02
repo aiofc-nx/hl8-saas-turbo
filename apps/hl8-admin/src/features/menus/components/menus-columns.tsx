@@ -4,11 +4,11 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table'
 import { LongText } from '@/components/long-text'
-import { statusColors } from '../data/data'
-import { type Role } from '../data/schema'
+import { statusColors, menuTypeColors } from '../data/data'
+import { type Menu } from '../data/schema'
 import { DataTableRowActions } from './data-table-row-actions'
 
-export const rolesColumns: ColumnDef<Role>[] = [
+export const menusColumns: ColumnDef<Menu>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -37,13 +37,14 @@ export const rolesColumns: ColumnDef<Role>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'code',
+    accessorKey: 'menuName',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Code' />
+      <DataTableColumnHeader column={column} title='Menu Name' />
     ),
-    cell: ({ row }) => (
-      <LongText className='max-w-36 ps-3'>{row.getValue('code')}</LongText>
-    ),
+    cell: ({ row }) => {
+      const name = row.getValue('menuName') as string
+      return <LongText className='max-w-36'>{name}</LongText>
+    },
     meta: {
       className: cn(
         'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)]',
@@ -53,15 +54,64 @@ export const rolesColumns: ColumnDef<Role>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'menuType',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Name' />
+      <DataTableColumnHeader column={column} title='Type' />
     ),
     cell: ({ row }) => {
-      const name = row.getValue('name') as string
-      return <LongText className='max-w-36'>{name}</LongText>
+      const menuType = row.getValue('menuType') as
+        | 'MENU'
+        | 'DIRECTORY'
+        | 'BUTTON'
+      const badgeColor = menuTypeColors.get(menuType)
+      return (
+        <div className='flex space-x-2'>
+          <Badge
+            variant='outline'
+            className={cn('capitalize', badgeColor?.className)}
+          >
+            {menuType}
+          </Badge>
+        </div>
+      )
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    enableHiding: false,
+    enableSorting: false,
+  },
+  {
+    accessorKey: 'routeName',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Route Name' />
+    ),
+    cell: ({ row }) => (
+      <LongText className='max-w-36 ps-3'>{row.getValue('routeName')}</LongText>
+    ),
     meta: { className: 'w-36' },
+  },
+  {
+    accessorKey: 'routePath',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Route Path' />
+    ),
+    cell: ({ row }) => (
+      <div className='w-fit ps-2 text-nowrap'>{row.getValue('routePath')}</div>
+    ),
+    enableSorting: false,
+  },
+  {
+    accessorKey: 'component',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Component' />
+    ),
+    cell: ({ row }) => (
+      <div className='w-fit max-w-[200px] truncate ps-2 text-nowrap'>
+        {row.getValue('component')}
+      </div>
+    ),
+    enableSorting: false,
   },
   {
     accessorKey: 'pid',
@@ -74,16 +124,13 @@ export const rolesColumns: ColumnDef<Role>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: 'description',
+    accessorKey: 'order',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Description' />
+      <DataTableColumnHeader column={column} title='Order' />
     ),
     cell: ({ row }) => (
-      <div className='w-fit max-w-[200px] truncate ps-2 text-nowrap'>
-        {row.getValue('description') || '-'}
-      </div>
+      <div className='w-fit ps-2 text-nowrap'>{row.getValue('order')}</div>
     ),
-    enableSorting: false,
   },
   {
     accessorKey: 'status',

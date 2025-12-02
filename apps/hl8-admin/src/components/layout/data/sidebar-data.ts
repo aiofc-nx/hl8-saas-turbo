@@ -21,6 +21,7 @@ import {
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
+  Menu,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -80,7 +81,12 @@ export const sidebarData: SidebarData = {
         {
           title: 'Roles',
           url: '/roles',
-          icon: Users,
+          icon: ShieldCheck,
+        },
+        {
+          title: 'Menus',
+          url: '/menus',
+          icon: Menu,
         },
       ],
     },

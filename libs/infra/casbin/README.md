@@ -396,16 +396,17 @@ r = sub, obj, act, dom
 
 **参数说明**：
 
-| 参数 | 说明 | 示例值 |
-|------|------|--------|
-| `sub` | 主体（Subject），通常是用户 ID 或角色代码 | `"user-123"` 或 `"admin"` |
-| `obj` | 对象（Object），通常是资源类型 | `"user"`、`"role"`、`"domain"` |
-| `act` | 操作（Action），通常是操作类型 | `"read"`、`"write"`、`"delete"` |
-| `dom` | 域（Domain），用于多租户隔离 | `"example.com"`、`"tenant-a"` |
+| 参数  | 说明                                      | 示例值                          |
+| ----- | ----------------------------------------- | ------------------------------- |
+| `sub` | 主体（Subject），通常是用户 ID 或角色代码 | `"user-123"` 或 `"admin"`       |
+| `obj` | 对象（Object），通常是资源类型            | `"user"`、`"role"`、`"domain"`  |
+| `act` | 操作（Action），通常是操作类型            | `"read"`、`"write"`、`"delete"` |
+| `dom` | 域（Domain），用于多租户隔离              | `"example.com"`、`"tenant-a"`   |
 
 **使用场景**：
 
 当用户访问资源时，系统会构造一个请求：`(sub, obj, act, dom)`，例如：
+
 - `("user-123", "user", "read", "example.com")` - 用户 user-123 在 example.com 域下读取 user 资源
 
 ##### 2. [policy_definition] - 策略定义
@@ -418,13 +419,13 @@ p = sub, obj, act, dom, eft
 
 **参数说明**：
 
-| 参数 | 说明 | 示例值 |
-|------|------|--------|
-| `sub` | 主体（Subject），通常是角色代码 | `"admin"`、`"user"` |
-| `obj` | 对象（Object），资源类型 | `"user"`、`"role"` |
-| `act` | 操作（Action），操作类型 | `"read"`、`"write"`、`"delete"` |
-| `dom` | 域（Domain），多租户隔离 | `"example.com"` |
-| `eft` | 效果（Effect），权限效果 | `"allow"`（允许）或 `"deny"`（拒绝） |
+| 参数  | 说明                            | 示例值                               |
+| ----- | ------------------------------- | ------------------------------------ |
+| `sub` | 主体（Subject），通常是角色代码 | `"admin"`、`"user"`                  |
+| `obj` | 对象（Object），资源类型        | `"user"`、`"role"`                   |
+| `act` | 操作（Action），操作类型        | `"read"`、`"write"`、`"delete"`      |
+| `dom` | 域（Domain），多租户隔离        | `"example.com"`                      |
+| `eft` | 效果（Effect），权限效果        | `"allow"`（允许）或 `"deny"`（拒绝） |
 
 **策略示例**：
 
@@ -452,11 +453,11 @@ g = _, _, _
 
 **参数说明**：
 
-| 参数 | 说明 | 示例值 |
-|------|------|--------|
-| 第一个参数 | 用户或子角色 | `"user-123"` 或 `"editor"` |
-| 第二个参数 | 角色或父角色 | `"admin"` 或 `"manager"` |
-| 第三个参数 | 域（Domain），用于多租户隔离 | `"example.com"` |
+| 参数       | 说明                         | 示例值                     |
+| ---------- | ---------------------------- | -------------------------- |
+| 第一个参数 | 用户或子角色                 | `"user-123"` 或 `"editor"` |
+| 第二个参数 | 角色或父角色                 | `"admin"` 或 `"manager"`   |
+| 第三个参数 | 域（Domain），用于多租户隔离 | `"example.com"`            |
 
 **角色继承示例**：
 
@@ -473,6 +474,7 @@ g, editor, manager, example.com
 **角色继承链**：
 
 如果 `editor` 继承 `manager`，`manager` 继承 `admin`，则：
+
 - `editor` 拥有 `manager` 和 `admin` 的所有权限
 - 角色继承支持多级继承
 
@@ -536,6 +538,7 @@ m = g(r.sub, p.sub, r.dom) && r.obj == p.obj && r.act == p.act && r.dom == p.dom
 **请求**：`("user-123", "user", "read", "example.com")`
 
 **策略 1**：`p, admin, user, read, example.com, allow`
+
 - 角色匹配：需要检查 `g(user-123, admin, example.com)` - 如果用户拥有 admin 角色，则匹配
 - 资源匹配：`"user" == "user"` ✅
 - 操作匹配：`"read" == "read"` ✅
@@ -543,6 +546,7 @@ m = g(r.sub, p.sub, r.dom) && r.obj == p.obj && r.act == p.act && r.dom == p.dom
 - 结果：如果角色匹配，则策略匹配 ✅
 
 **策略 2**：`p, admin, user, read, other.com, allow`
+
 - 域匹配：`"example.com" == "other.com"` ❌
 - 结果：策略不匹配 ❌（域不匹配，即使其他条件都满足）
 
@@ -571,18 +575,19 @@ p, admin, user, read, other.com, allow
 ```
 
 即使用户在两个域都拥有 admin 角色，但：
+
 - 在 `example.com` 域下，只能使用 `example.com` 域的策略
 - 在 `other.com` 域下，只能使用 `other.com` 域的策略
 
 #### 模型配置总结
 
-| 配置项 | 作用 | 关键点 |
-|--------|------|--------|
-| **request_definition** | 定义请求结构 | 包含 4 个参数：主体、对象、操作、域 |
-| **policy_definition** | 定义策略结构 | 包含 5 个参数：主体、对象、操作、域、效果 |
-| **role_definition** | 定义角色继承 | 支持多级角色继承，域级别隔离 |
-| **policy_effect** | 定义验证逻辑 | allow 和 deny 的组合判断 |
-| **matchers** | 定义匹配规则 | 包含角色、资源、操作、域的匹配，**域匹配是多租户隔离的关键** |
+| 配置项                 | 作用         | 关键点                                                       |
+| ---------------------- | ------------ | ------------------------------------------------------------ |
+| **request_definition** | 定义请求结构 | 包含 4 个参数：主体、对象、操作、域                          |
+| **policy_definition**  | 定义策略结构 | 包含 5 个参数：主体、对象、操作、域、效果                    |
+| **role_definition**    | 定义角色继承 | 支持多级角色继承，域级别隔离                                 |
+| **policy_effect**      | 定义验证逻辑 | allow 和 deny 的组合判断                                     |
+| **matchers**           | 定义匹配规则 | 包含角色、资源、操作、域的匹配，**域匹配是多租户隔离的关键** |
 
 #### 注意事项
 
@@ -730,6 +735,188 @@ pnpm test:watch
 - ✅ 数据库适配器操作
 - ✅ 装饰器和模块注册
 - ✅ 边界情况和错误处理
+
+## 🧩 Casbin 权限前端运维与管理方案
+
+> 本节用于规范本系统中 `libs/infra/casbin` 相关的前端维护方案，解决目前缺少页面维护 `model.conf.*` 和 `casbin_rule`（`CasbinRule` 实体）的痛点，为后续实现提供统一设计依据。
+
+### 1. 目标与范围
+
+- **目标**
+  - 为运营 / 安全 / 管理员提供一个统一的「Casbin 权限管理」后台页面，用于：
+    - 管理权限策略规则（`casbin_rule` 表中 `p` / `g` 规则）；
+    - 受控地查看与变更 Casbin 模型配置（如 `model.conf.1`）；
+    - 对所有变更进行审计、版本化与可回滚。
+- **范围**
+  - 后端：基于 `apps/admin-api` 提供 Casbin 管理相关 API；
+  - 前端：基于 `apps/hl8-admin` 提供配置 / 运营页面；
+  - 不改动 `MikroORMAdapter` 与 `CasbinRule` 的现有行为，只是在其之上增加管理能力。
+
+### 2. 整体架构方案
+
+- **现有基础**
+  - `MikroORMAdapter`：负责在运行期把 `CasbinRule` 与 Casbin `Model` 互相转换；
+  - `CasbinRule` 实体：数据库中持久化策略规则（`ptype` + `v0~v5`）；
+  - `model.conf.*`：以文件形式存在的 Casbin 模型定义。
+- **新增组件（建议）**
+  - `admin-api`：
+    - `CasbinPolicyController` / `CasbinPolicyService`：用于策略规则（`CasbinRule`）管理；
+    - `CasbinModelController` / `CasbinModelService`：用于模型配置版本化与发布管理；
+    - `CasbinAuditController` / `CasbinAuditService`：用于记录与查询变更日志（可与现有审计模块集成）。
+  - `hl8-admin`：
+    - 页面「权限规则管理」：面向 `CasbinRule`；
+    - 页面「权限模型配置」：面向 `model.conf` 版本。
+  - 运行时：
+    - 统一的 Casbin 管理服务负责在模型 / 策略变更后触发 Enforcer 重新加载（单实例或通过消息总线在集群中广播）。
+
+### 3. 策略规则（CasbinRule）管理方案
+
+#### 3.1 业务抽象
+
+- **数据现状**
+  - `ptype = 'p'`：权限策略，常用字段映射：
+    - `v0` → `sub`（主体：角色编码 / 用户标识）；
+    - `v1` → `obj`（资源：接口路径 / 资源编码）；
+    - `v2` → `act`（操作：HTTP 方法 / 动作枚举）；
+    - 其他字段 `v3~v5` 预留用于域、多租户、效果等扩展（视具体模型）。
+  - `ptype = 'g'`：角色继承或用户-角色关系：
+    - `v0` → 子主体（用户 / 子角色）；
+    - `v1` → 父角色；
+    - `v2` → 域 / 其他附加维度（视具体模型）。
+- **前端展示建议**
+  - 不直接暴露 `ptype`、`v0~v5`，而是封装为语义化 DTO：
+    - 主体类型（用户 / 角色）+ 主体标识；
+    - 资源类型（菜单 / 接口 / 资源编码）+ 资源标识；
+    - 操作（查看 / 新增 / 编辑 / 删除 / 自定义字符串）；
+    - 可选：域 / 租户 / 业务线。
+
+#### 3.2 后端 API 设计（示例）
+
+- **策略规则管理**
+  - `GET /casbin/policies`：分页查询策略列表，支持按主体、资源、操作、ptype 过滤；
+  - `POST /casbin/policies`：新增单条策略；
+  - `DELETE /casbin/policies/:id`：删除单条策略；
+  - `POST /casbin/policies/batch`：批量新增 / 删除策略（用于导入导出）。
+- **角色 / 继承关系管理**
+  - `GET /casbin/relations`：查询 `g` 规则（用户-角色 / 角色-角色继承）；
+  - `POST /casbin/relations`：新增继承关系；
+  - `DELETE /casbin/relations/:id`：删除继承关系。
+- **实现要点**
+  - DTO 层完成业务语义与 `CasbinRule`（`ptype + v0~v5`）之间的映射；
+  - 所有写操作成功后：
+    - 要么通过 Enforcer 的增量 API 同步规则；
+    - 要么标记为“变更待刷新”，由后台作业统一触发 Enforcer `loadPolicy()`。
+
+#### 3.3 前端页面交互（示例）
+
+- **页面：权限规则管理**
+  - 表格列：
+    - 主体类型 / 主体标识；
+    - 资源类型 / 资源标识；
+    - 操作；
+    - ptype（策略 / 继承）；
+    - 创建时间 / 创建人。
+  - 功能：
+    - 条件筛选：主体、资源、操作、ptype；
+    - 新增策略：通过表单选择主体、资源、操作，内部映射为 `p, sub, obj, act`；
+    - 批量导入导出：CSV / JSON，方便初始化或迁移；
+    - 删除 / 批量删除策略（需二次确认）。
+
+### 4. 模型配置（model.conf.\*）版本化与管理
+
+#### 4.1 模型配置持久化与版本表
+
+- **新增建议表：`casbin_model_config`**
+  - 字段示例：
+    - `id`：主键；
+    - `content`：完整 `model.conf` 文本；
+    - `version`：自增版本号；
+    - `status`：`draft` | `active` | `archived`；
+    - `remark`：变更说明；
+    - `created_by` / `created_at`；
+    - `approved_by` / `approved_at`（可选审批链）。
+- **加载策略**
+  - 运行时优先从 `casbin_model_config` 中加载最新 `active` 版本；
+  - 若表为空，则退回使用默认文件配置（例如当前的 `model.conf.1`），并在首次启动时写入一份初始版本；
+  - `AuthZModule` 的 `enforcerProvider` 改造：
+    - 从配置中心读取“当前模型 ID / 版本号”或直接查询 `active` 记录；
+    - 用 `newModelFromString(content)` 或临时落盘再 `newEnforcer(path, adapter)` 方式初始化。
+
+#### 4.2 模型变更流程
+
+- **1）草稿创建**
+  - 管理员在前端页面「权限模型配置」中：
+    - 读取当前 `active` 版本内容；
+    - 在代码编辑器中修改后提交，调用 `POST /casbin/model/drafts` 创建 `draft` 版本。
+- **2）语法与安全校验**
+  - 后端保存草稿时必须进行基础校验：
+    - 使用 Casbin 官方 API 尝试解析 `content`，解析失败则拒绝保存；
+    - 校验必备段落，如 `[request_definition]`、`[policy_definition]`、`[matchers]` 等；
+    - 可根据业务规则加额外约束（例如强制保留某些 matcher 模板）。
+- **3）审批与发布**
+  - 高权限运维 / 安全管理员在版本列表中：
+    - 查看草稿详情与与当前版本的 diff；
+    - 填写发布说明，调用 `POST /casbin/model/:id/publish` 将 `draft` 标记为 `active`；
+    - 同时将原 `active` 版本改为 `archived`。
+  - 发布成功后：
+    - 触发 Enforcer 重新加载模型；
+    - 如是集群，需要通过消息总线（如 Redis PUB/SUB、NATS 等）通知其它实例重载。
+- **4）回滚**
+  - 从版本列表选择任何历史 `archived` 版本，点击「回滚」：
+    - 直接将该版本重新标记为 `active`，原 `active` 版本变为 `archived`；
+    - 同步触发 Enforcer 重新加载。
+
+#### 4.3 前端页面交互（示例）
+
+- **页面：权限模型配置**
+  - 左侧：模型版本列表（版本号、状态、创建人、创建时间、备注）；
+  - 右侧：代码编辑器（高亮 INI/Conf 语法），支持只读 / 编辑模式；
+  - 功能：
+    - 查看当前 `active` 版本；
+    - 新建草稿 / 编辑草稿；
+    - 查看任意两个版本的 diff；
+    - 提交审批 / 审批发布；
+    - 一键回滚到历史版本。
+  - 权限控制：
+    - 一般管理员：仅查看模型和历史；
+    - 高级管理员：可创建草稿；
+    - 安全 / 运维负责人：拥有审批与发布权限。
+
+### 5. 安全、审计与测试要求
+
+- **安全**
+  - 所有 Casbin 管理相关接口必须本身受严格权限控制（例如仅 `super_admin` 或安全管理角色可访问）；
+  - 对模型变更操作建议引入双人审核或至少「编辑者 ≠ 审批者」约束；
+  - 前端页面需清晰标注模型变更的高风险性，并增加多次确认提示。
+- **审计**
+  - 对以下行为记录操作日志（可复用全局审计系统）：
+    - 策略规则新增 / 删除 / 批量导入导出；
+    - 模型草稿创建 / 修改 / 发布 / 回滚；
+    - Enforcer 重载触发记录（包含源版本与目标版本信息）。
+  - 日志字段至少包含：操作者、时间、请求来源、变更前内容摘要、变更后内容摘要、结果状态。
+- **测试**
+  - 单元测试：
+    - DTO 与 `CasbinRule` 映射测试；
+    - 模型字符串解析与校验逻辑测试；
+    - 策略 CRUD 与 Enforcer 同步行为测试。
+  - 集成 / 端到端测试：
+    - 在真实环境中验证模型变更后关键权限路径（登录 / 菜单访问 / 核心接口）的正确性；
+    - 对常见误操作场景（模型缺段落、语法错误、策略冲突）进行回归验证。
+
+### 6. 实施步骤建议
+
+1. **阶段一：策略规则管理**
+   - 增加 `CasbinRule` 管理 API；
+   - 在 `hl8-admin` 新增「权限规则管理」页面；
+   - 只读展示当前模型配置，暂不开放在线修改。
+2. **阶段二：模型版本化**
+   - 引入 `casbin_model_config` 表与对应 Service / Controller；
+   - 改造 `enforcerProvider` 以支持从 DB 中加载模型；
+   - 在 `hl8-admin` 增加「权限模型配置」页面，支持草稿 + 发布 + 回滚。
+3. **阶段三：安全与体验打磨**
+   - 引入审批流与更细粒度的角色控制；
+   - 完善操作审计与告警（例如高危模型变更时通知安全负责人）；
+   - 与菜单 / 角色等 IAM 模块联动，提供从业务实体跳转查看相关 Casbin 策略的能力。
 
 ## 📄 许可证
 

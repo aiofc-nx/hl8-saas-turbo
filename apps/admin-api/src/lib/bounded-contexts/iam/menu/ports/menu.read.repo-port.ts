@@ -1,4 +1,7 @@
+import { PaginationResult } from '@hl8/rest';
+
 import { MenuProperties, MenuTreeProperties } from '../domain/menu.read.model';
+import { PageMenusQuery } from '../queries/page-menus.query';
 
 /**
  * 菜单读取仓储端口
@@ -10,6 +13,15 @@ import { MenuProperties, MenuTreeProperties } from '../domain/menu.read.model';
  * @interface MenuReadRepoPort
  */
 export interface MenuReadRepoPort {
+  /**
+   * 分页查询菜单
+   *
+   * @description 根据查询条件分页查询菜单列表，支持按菜单名称、路由名称、菜单类型和状态筛选
+   *
+   * @param query - 分页查询对象，包含分页参数、菜单名称、路由名称、菜单类型、状态等筛选条件
+   * @returns 返回分页结果，包含菜单列表和分页信息
+   */
+  pageMenus(query: PageMenusQuery): Promise<PaginationResult<MenuProperties>>;
   /**
    * 获取子菜单数量
    *
