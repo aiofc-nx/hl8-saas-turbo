@@ -53,7 +53,7 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: 'Dashboard',
-          url: '/',
+          url: '/dashboard',
           icon: LayoutDashboard,
         },
         {
@@ -75,6 +75,11 @@ export const sidebarData: SidebarData = {
         {
           title: 'Users',
           url: '/users',
+          icon: Users,
+        },
+        {
+          title: 'Roles',
+          url: '/roles',
           icon: Users,
         },
       ],

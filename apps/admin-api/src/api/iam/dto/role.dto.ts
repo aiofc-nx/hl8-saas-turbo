@@ -38,7 +38,6 @@ export class RoleCreateDto {
    */
   @ApiProperty({ required: true })
   @IsString({ message: 'pid must be a string' })
-  @IsNotEmpty({ message: 'pid cannot be empty' })
   pid: string;
 
   /**

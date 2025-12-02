@@ -20,6 +20,7 @@ import {
   RoleReadModel,
 } from '@/lib/bounded-contexts/iam/role/domain/role.read.model';
 import { PageRolesQuery } from '@/lib/bounded-contexts/iam/role/queries/page-roles.query';
+import { ROOT_PID } from '@/lib/shared/constants/db.constant';
 
 import { ApiResponseDoc } from '@hl8/decorators';
 import { ApiRes, PaginationResult } from '@hl8/rest';
@@ -133,11 +134,13 @@ export class RoleController {
     @Body() dto: RoleCreateDto,
     @Request() req: any,
   ): Promise<ApiRes<null>> {
+    // 将空字符串转换为 ROOT_PID，表示根角色
+    const pid = dto.pid === '' ? ROOT_PID : dto.pid;
     await this.commandBus.execute(
       new RoleCreateCommand(
         dto.code,
         dto.name,
-        dto.pid,
+        pid,
         dto.status,
         dto.description,
         req.user.uid,
@@ -181,12 +184,14 @@ export class RoleController {
     @Body() dto: RoleUpdateDto,
     @Request() req: any,
   ): Promise<ApiRes<null>> {
+    // 将空字符串转换为 ROOT_PID，表示根角色
+    const pid = dto.pid === '' ? ROOT_PID : dto.pid;
     await this.commandBus.execute(
       new RoleUpdateCommand(
         dto.id,
         dto.code,
         dto.name,
-        dto.pid,
+        pid,
         dto.status,
         dto.description,
         req.user.uid,

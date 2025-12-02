@@ -1,3 +1,13 @@
+/**
+ * 用户服务
+ *
+ * 提供用户相关的 API 调用方法，包括：
+ * - 获取当前用户信息
+ * - 更新用户信息
+ * - 获取用户列表（分页）
+ *
+ * @module lib/services/user.service
+ */
 import { apiClient } from '../api-client'
 import type { ApiResponse } from '../api-client.types'
 
@@ -71,18 +81,59 @@ export interface UpdateUserInfoRequest {
 
 /**
  * 后端用户属性（来自后端API）
+ *
+ * 这是后端 API 返回的用户数据格式。
+ * 需要通过适配器转换为前端使用的格式。
+ *
+ * @remarks
+ * - `status`: 后端使用 'ACTIVE'/'INACTIVE'，前端需要转换为 'active'/'inactive'
+ * - `domain`: 用户所属的域名/租户
+ * - 日期字段为字符串格式，需要转换为 Date 对象
  */
 export interface BackendUserProperties {
+  /**
+   * 用户 ID
+   */
   id: string
+  /**
+   * 用户名
+   */
   username: string
+  /**
+   * 用户所属域名/租户
+   */
   domain: string
+  /**
+   * 用户昵称
+   */
   nickName: string
+  /**
+   * 用户状态（后端格式：ACTIVE/INACTIVE）
+   */
   status: 'ACTIVE' | 'INACTIVE'
+  /**
+   * 用户头像 URL
+   */
   avatar: string | null
+  /**
+   * 用户邮箱
+   */
   email: string | null
+  /**
+   * 用户手机号
+   */
   phoneNumber: string | null
+  /**
+   * 邮箱是否已验证
+   */
   isEmailVerified: boolean
+  /**
+   * 创建时间（ISO 字符串格式）
+   */
   createdAt: string
+  /**
+   * 更新时间（ISO 字符串格式）
+   */
   updatedAt: string
 }
 
