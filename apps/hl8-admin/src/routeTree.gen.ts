@@ -16,6 +16,8 @@ import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
+import { Route as AuthenticatedCasbinPoliciesIndexRouteImport } from './routes/_authenticated/casbin-policies/index'
+import { Route as AuthenticatedCasbinRelationsIndexRouteImport } from './routes/_authenticated/casbin-relations/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
 import { Route as AuthenticatedDomainsIndexRouteImport } from './routes/_authenticated/domains/index'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
@@ -141,6 +143,18 @@ const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCasbinRelationsIndexRoute =
+  AuthenticatedCasbinRelationsIndexRouteImport.update({
+    id: '/casbin-relations/',
+    path: '/casbin-relations/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCasbinPoliciesIndexRoute =
+  AuthenticatedCasbinPoliciesIndexRouteImport.update({
+    id: '/casbin-policies/',
+    path: '/casbin-policies/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   id: '/apps/',
   path: '/apps/',
@@ -196,6 +210,8 @@ export interface FileRoutesByFullPath {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
+  '/casbin-policies': typeof AuthenticatedCasbinPoliciesIndexRoute
+  '/casbin-relations': typeof AuthenticatedCasbinRelationsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/domains': typeof AuthenticatedDomainsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
@@ -223,6 +239,8 @@ export interface FileRoutesByTo {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
+  '/casbin-policies': typeof AuthenticatedCasbinPoliciesIndexRoute
+  '/casbin-relations': typeof AuthenticatedCasbinRelationsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/domains': typeof AuthenticatedDomainsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
@@ -253,6 +271,8 @@ export interface FileRoutesById {
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
+  '/_authenticated/casbin-policies/': typeof AuthenticatedCasbinPoliciesIndexRoute
+  '/_authenticated/casbin-relations/': typeof AuthenticatedCasbinRelationsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/domains/': typeof AuthenticatedDomainsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
@@ -283,6 +303,8 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/apps'
+    | '/casbin-policies'
+    | '/casbin-relations'
     | '/chats'
     | '/domains'
     | '/help-center'
@@ -310,6 +332,8 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/apps'
+    | '/casbin-policies'
+    | '/casbin-relations'
     | '/chats'
     | '/domains'
     | '/help-center'
@@ -339,6 +363,8 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
     | '/_authenticated/apps/'
+    | '/_authenticated/casbin-policies/'
+    | '/_authenticated/casbin-relations/'
     | '/_authenticated/chats/'
     | '/_authenticated/domains/'
     | '/_authenticated/help-center/'
@@ -513,6 +539,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/casbin-relations/': {
+      id: '/_authenticated/casbin-relations/'
+      path: '/casbin-relations'
+      fullPath: '/casbin-relations'
+      preLoaderRoute: typeof AuthenticatedCasbinRelationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/casbin-policies/': {
+      id: '/_authenticated/casbin-policies/'
+      path: '/casbin-policies'
+      fullPath: '/casbin-policies'
+      preLoaderRoute: typeof AuthenticatedCasbinPoliciesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/apps/': {
       id: '/_authenticated/apps/'
       path: '/apps'
@@ -585,6 +625,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
+  AuthenticatedCasbinPoliciesIndexRoute: typeof AuthenticatedCasbinPoliciesIndexRoute
+  AuthenticatedCasbinRelationsIndexRoute: typeof AuthenticatedCasbinRelationsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedDomainsIndexRoute: typeof AuthenticatedDomainsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
@@ -598,6 +640,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
+  AuthenticatedCasbinPoliciesIndexRoute: AuthenticatedCasbinPoliciesIndexRoute,
+  AuthenticatedCasbinRelationsIndexRoute:
+    AuthenticatedCasbinRelationsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedDomainsIndexRoute: AuthenticatedDomainsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,

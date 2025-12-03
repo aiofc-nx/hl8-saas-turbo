@@ -25,6 +25,7 @@ export class ApiEndpointReadRepository implements ApiEndpointReadRepoPort {
   async pageEndpoints(
     query: PageEndpointsQuery,
   ): Promise<PaginationResult<EndpointProperties>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: FilterQuery<any> = {};
 
     if (query.path) {
@@ -86,6 +87,7 @@ export class ApiEndpointReadRepository implements ApiEndpointReadRepoPort {
    * @returns API 端点属性列表
    */
   async findAll(): Promise<EndpointProperties[]> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const endpoints = await this.em.find('SysEndpoint', {} as FilterQuery<any>);
     return endpoints as EndpointProperties[];
   }

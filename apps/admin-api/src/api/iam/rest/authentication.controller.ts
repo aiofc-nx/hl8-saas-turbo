@@ -112,14 +112,16 @@ export class AuthenticationController {
   async login(
     @Body() dto: PasswordLoginDto,
     @Request() request: FastifyRequest,
-  ): Promise<ApiRes<any>> {
+  ): Promise<ApiRes<{ token: string; refreshToken: string }>> {
     const { ip, port } = getClientIpAndPort(request);
     let region = 'Unknown';
 
     try {
       const ip2regionResult = await Ip2regionService.getSearcher().search(ip);
       region = ip2regionResult.region || region;
-    } catch (_) {}
+    } catch {
+      // 忽略 IP 解析错误，使用默认值
+    }
     const token = await this.authenticationService.execPasswordLogin(
       new PasswordIdentifierDTO(
         dto.identifier,
@@ -161,14 +163,16 @@ export class AuthenticationController {
   async refreshToken(
     @Body('refreshToken') refreshToken: string,
     @Request() request: FastifyRequest,
-  ): Promise<ApiRes<any>> {
+  ): Promise<ApiRes<{ token: string; refreshToken: string }>> {
     const { ip, port } = getClientIpAndPort(request);
     let region = 'Unknown';
 
     try {
       const ip2regionResult = await Ip2regionService.getSearcher().search(ip);
       region = ip2regionResult.region || region;
-    } catch (_) {}
+    } catch {
+      // 忽略 IP 解析错误，使用默认值
+    }
     const token = await this.authenticationService.refreshToken(
       new RefreshTokenDTO(
         refreshToken,
@@ -301,7 +305,20 @@ export class AuthenticationController {
    * ```
    */
   @Get('getUserInfo')
-  async getProfile(@Request() req: any): Promise<ApiRes<any>> {
+  async getProfile(
+    @Request() req: FastifyRequest & { user: IAuthentication },
+  ): Promise<
+    ApiRes<{
+      userId: string;
+      userName: string;
+      nickName: string;
+      avatar: string | null;
+      email: string | null;
+      phoneNumber: string | null;
+      isEmailVerified: boolean;
+      roles: string[];
+    }>
+  > {
     const user: IAuthentication = req.user;
 
     // 从数据库获取完整用户信息
@@ -356,7 +373,25 @@ export class AuthenticationController {
   async confirmEmail(
     @Body() dto: ConfirmEmailDto,
     @Request() request: FastifyRequest,
-  ): Promise<ApiRes<any>> {
+  ): Promise<
+    ApiRes<{
+      message: string;
+      data: {
+        id: string;
+        email: string;
+        username: string;
+        isEmailVerified: boolean;
+        createdAt: string;
+        updatedAt: string;
+      };
+      tokens: {
+        access_token: string;
+        refresh_token: string;
+        session_token: string;
+        session_refresh_time: string;
+      };
+    }>
+  > {
     // 1. 从 Redis 获取存储的 OTP 验证码
     const otpKey = `${CacheConstant.EMAIL_VERIFICATION_PREFIX}${dto.email}`;
     const storedOtp = await RedisUtility.instance.get(otpKey);
@@ -391,7 +426,9 @@ export class AuthenticationController {
     try {
       const ip2regionResult = await Ip2regionService.getSearcher().search(ip);
       region = ip2regionResult.region || region;
-    } catch (_) {}
+    } catch {
+      // 忽略 IP 解析错误，使用默认值
+    }
 
     // 7. 生成令牌（邮箱验证后自动登录，不需要密码验证）
     const token = await this.authenticationService.verifyEmailAndLogin(

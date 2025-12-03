@@ -102,6 +102,35 @@ class ThrottlerStorageAdapter implements ThrottlerStorage {
         useFactory: async (configService: ConfigService, em: EntityManager) => {
           // 创建 MikroORM 适配器，用于从数据库加载权限策略
           const adapter = MikroORMAdapter.newAdapter(em);
+
+          // 优先从数据库加载激活版本的模型配置
+          try {
+            // 使用字符串表名查询，避免循环依赖
+
+            const activeConfig = await em.findOne('CasbinModelConfig', {
+              status: 'active',
+            } as any);
+
+            if (
+              activeConfig &&
+              (activeConfig as { content?: string }).content
+            ) {
+              // 从数据库加载模型配置
+              const model = casbin.newModelFromString(
+                (activeConfig as { content: string }).content,
+              );
+              // 创建 Casbin 执行器，使用数据库中的模型配置
+              return casbin.newEnforcer(model, adapter);
+            }
+          } catch (error) {
+            // 如果数据库中没有激活版本或查询失败，回退到文件配置
+            console.warn(
+              'Failed to load model from database, falling back to file config:',
+              error instanceof Error ? error.message : String(error),
+            );
+          }
+
+          // 回退到文件配置
           const { casbinModel } = configService.get<ISecurityConfig>(
             securityRegToken,
             {
@@ -193,7 +222,7 @@ class ThrottlerStorageAdapter implements ThrottlerStorage {
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService<ConfigKeyPaths>) => {
+      useFactory: (_configService: ConfigService<ConfigKeyPaths>) => {
         const mailHost = process.env.MAIL_HOST || 'smtp.gmail.com';
         const mailPort = parseInt(process.env.MAIL_PORT || '587', 10);
         const mailSecure = process.env.MAIL_SECURE === 'true';

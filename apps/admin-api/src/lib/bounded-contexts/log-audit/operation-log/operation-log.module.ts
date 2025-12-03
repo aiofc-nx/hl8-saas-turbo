@@ -42,6 +42,7 @@ export class OperationLogModule {
    */
   static register(options: {
     inject: Provider[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     imports: any[];
   }): DynamicModule {
     return {

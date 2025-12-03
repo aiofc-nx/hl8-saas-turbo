@@ -34,6 +34,7 @@ export class CasbinRuleApiEndpointService {
       ptype: 'p',
       v0: roleCode,
       v3: domain,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as FilterQuery<any>);
   }
 }

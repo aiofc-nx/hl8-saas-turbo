@@ -25,6 +25,7 @@ export class ApiEndpointWriteRepository implements ApiEndpointWriteRepoPort {
         'SysEndpoint',
         {} as FilterQuery<any>,
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const existingIds = existingEndpoints.map((ep: any) => ep.id);
       const newIds = endpoints.map((ep) => ep.id);
       const idsToDelete = existingIds.filter((id) => !newIds.includes(id));
@@ -40,6 +41,7 @@ export class ApiEndpointWriteRepository implements ApiEndpointWriteRepoPort {
           id: endpoint.id,
         } as FilterQuery<any>);
         // 映射字段：确保 controller 字段有值（从 controller 或 controllerName 获取）
+
         const controller =
           endpoint.controller ||
           (endpoint as any).controllerName ||

@@ -24,6 +24,8 @@ import { ROOT_PID } from '@/lib/shared/constants/db.constant';
 
 import { ApiResponseDoc } from '@hl8/decorators';
 import { ApiRes, PaginationResult } from '@hl8/rest';
+import type { IAuthentication } from '@hl8/typings';
+import type { FastifyRequest } from 'fastify';
 
 import { PageRolesDto } from '../dto/page-roles.dto';
 import { RoleCreateDto, RoleUpdateDto } from '../dto/role.dto';
@@ -132,7 +134,7 @@ export class RoleController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async createRole(
     @Body() dto: RoleCreateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     // 将空字符串转换为 ROOT_PID，表示根角色
     const pid = dto.pid === '' ? ROOT_PID : dto.pid;
@@ -182,7 +184,7 @@ export class RoleController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async updateRole(
     @Body() dto: RoleUpdateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     // 将空字符串转换为 ROOT_PID，表示根角色
     const pid = dto.pid === '' ? ROOT_PID : dto.pid;

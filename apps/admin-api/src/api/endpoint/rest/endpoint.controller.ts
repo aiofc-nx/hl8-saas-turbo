@@ -21,6 +21,8 @@ import { PageEndpointsQuery } from '@/lib/bounded-contexts/api-endpoint/api-endp
 import { AuthActionVerb, AuthZGuard, UsePermissions } from '@hl8/casbin';
 import { ApiResponseDoc } from '@hl8/decorators';
 import { ApiRes, PaginationResult } from '@hl8/rest';
+import type { IAuthentication } from '@hl8/typings';
+import type { FastifyRequest } from 'fastify';
 
 import { PageEndpointsQueryDto } from '../dto/page-endpoint.dto';
 
@@ -139,7 +141,7 @@ export class EndpointController {
   })
   async authApiEndpoint(
     @Param('roleCode') roleCode: string,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ) {
     const result = await this.casbinRuleApiEndpointService.authApiEndpoint(
       roleCode,

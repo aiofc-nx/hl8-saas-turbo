@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { AccessKeyInfraModule } from '@/infra/bounded-contexts/access-key/access_key.infra.module';
 import { ApiEndpointInfraModule } from '@/infra/bounded-contexts/api-endpoint/api-endpoint/api-endpoint.infra.module';
+import { CasbinInfraModule } from '@/infra/bounded-contexts/casbin/casbin.infra.module';
 import { IamModule } from '@/infra/bounded-contexts/iam/authentication/iam.module';
 import { DomainInfraModule } from '@/infra/bounded-contexts/iam/domain/domain-infra.module';
 import { MenuInfraModule } from '@/infra/bounded-contexts/iam/menu/menu.infra.module';
@@ -11,6 +12,7 @@ import { LoginLogInfraModule } from '@/infra/bounded-contexts/log-audit/login-lo
 import { OperationLogInfraModule } from '@/infra/bounded-contexts/log-audit/operation-log/operation-log.infra.module';
 
 import { Controllers as AccessKeyRest } from './access-key/rest';
+import { Controllers as CasbinRest } from './casbin/rest';
 import { Controllers as EndpointRest } from './endpoint/rest';
 import { Controllers as IamRest } from './iam/rest';
 import { Controllers as LoginLogRest } from './log-audit/login-log/rest';
@@ -48,6 +50,7 @@ import { Controllers as OperationLogRest } from './log-audit/operation-log/rest'
     LoginLogInfraModule,
     TokensInfraModule,
     AccessKeyInfraModule,
+    CasbinInfraModule,
   ],
   controllers: [
     ...IamRest,
@@ -55,6 +58,7 @@ import { Controllers as OperationLogRest } from './log-audit/operation-log/rest'
     ...LoginLogRest,
     ...OperationLogRest,
     ...AccessKeyRest,
+    ...CasbinRest,
   ],
 })
 export class ApiModule {}

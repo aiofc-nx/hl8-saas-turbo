@@ -41,6 +41,7 @@ export class AccessKeyReadPostgresRepository implements AccessKeyReadRepoPort {
   async pageAccessKeys(
     query: PageAccessKeysQuery,
   ): Promise<PaginationResult<AccessKeyReadModel>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: FilterQuery<any> = {};
 
     if (query.domain) {

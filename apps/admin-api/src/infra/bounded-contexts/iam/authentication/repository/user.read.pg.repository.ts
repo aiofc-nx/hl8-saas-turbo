@@ -34,6 +34,7 @@ export class UserReadRepository implements UserReadRepoPort {
    * @returns 返回用户属性对象，如果不存在则返回 null
    */
   async findUserById(id: string): Promise<UserProperties | null> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user = await this.em.findOne('SysUser', { id } as FilterQuery<any>);
     return user as UserProperties | null;
   }
@@ -50,6 +51,7 @@ export class UserReadRepository implements UserReadRepoPort {
     const userRoles = await this.em.find('SysUserRole', {
       roleId,
     } as FilterQuery<any>);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return userRoles.map((item: any) => item.userId);
   }
 
@@ -102,6 +104,7 @@ export class UserReadRepository implements UserReadRepoPort {
   async pageUsers(
     query: PageUsersQuery,
   ): Promise<PaginationResult<UserProperties>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: FilterQuery<any> = {};
 
     if (query.username) {
@@ -174,6 +177,7 @@ export class UserReadRepository implements UserReadRepoPort {
     const userRoles = await this.em.find('SysUserRole', {
       userId,
     } as FilterQuery<any>);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const roleIds = userRoles.map((userRole: any) => userRole.roleId);
 
     if (roleIds.length === 0) {
@@ -183,6 +187,7 @@ export class UserReadRepository implements UserReadRepoPort {
     const roles = await this.em.find('SysRole', {
       id: { $in: roleIds },
     } as FilterQuery<any>);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new Set(roles.map((role: any) => role.code));
   }
 }

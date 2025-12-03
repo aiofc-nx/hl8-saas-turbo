@@ -29,6 +29,8 @@ import { PageMenusQuery } from '@/lib/bounded-contexts/iam/menu/queries/page-men
 
 import { ApiResponseDoc, Public } from '@hl8/decorators';
 import { ApiRes, PaginationResult } from '@hl8/rest';
+import type { IAuthentication } from '@hl8/typings';
+import type { FastifyRequest } from 'fastify';
 
 import { PageMenusDto } from '../dto/page-menus.dto';
 import { RouteCreateDto, RouteUpdateDto } from '../dto/route.dto';
@@ -216,7 +218,7 @@ export class MenuController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async createRoute(
     @Body() dto: RouteCreateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     await this.commandBus.execute(
       new MenuCreateCommand(
@@ -276,7 +278,7 @@ export class MenuController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async updateRoute(
     @Body() dto: RouteUpdateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     await this.commandBus.execute(
       new MenuUpdateCommand(
@@ -352,7 +354,10 @@ export class MenuController {
   @ApiOperation({
     summary: 'Authorized Routes',
   })
-  async authRoute(@Param('roleId') roleId: string, @Request() req: any) {
+  async authRoute(
+    @Param('roleId') roleId: string,
+    @Request() req: FastifyRequest & { user: IAuthentication },
+  ) {
     const result = await this.queryBus.execute<
       MenuIdsByRoleIdAndDomainQuery,
       number[]

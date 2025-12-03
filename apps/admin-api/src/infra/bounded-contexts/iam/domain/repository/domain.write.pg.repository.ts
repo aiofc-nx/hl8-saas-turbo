@@ -64,7 +64,12 @@ export class DomainWriteRepository implements DomainWriteRepoPort {
    * @throws {Error} 当更新操作失败时抛出异常
    */
   async update(domain: Domain): Promise<void> {
-    const { id, createdAt, createdBy, ...updateData } = domain as any;
+    const {
+      id,
+      createdAt: _createdAt,
+      createdBy: _createdBy,
+      ...updateData
+    } = domain as any;
     await this.em.nativeUpdate('SysDomain', { id }, updateData);
   }
 }

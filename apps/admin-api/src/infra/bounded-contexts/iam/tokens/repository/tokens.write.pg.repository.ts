@@ -43,6 +43,7 @@ export class TokensWriteRepository implements TokensWriteRepoPort {
   ): Promise<void> {
     await this.em.nativeUpdate(
       'SysTokens',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { refreshToken } as FilterQuery<any>,
       { status },
     );

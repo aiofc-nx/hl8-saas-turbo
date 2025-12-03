@@ -103,6 +103,7 @@ export class SysOperationLog {
    * @description 请求的参数（JSON 格式）
    */
   @Property({ type: 'json', nullable: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params?: any;
 
   /**
@@ -111,6 +112,7 @@ export class SysOperationLog {
    * @description 请求的请求体（JSON 格式）
    */
   @Property({ type: 'json', nullable: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body?: any;
 
   /**
@@ -119,6 +121,7 @@ export class SysOperationLog {
    * @description 请求的响应（JSON 格式）
    */
   @Property({ type: 'json', nullable: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   response?: any;
 
   /**

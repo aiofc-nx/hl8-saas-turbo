@@ -157,10 +157,10 @@ async function bootstrap() {
   initDocSwagger(app, configService);
 
   // 注册 Fastify 压缩插件
-  // @ts-ignore
   await app.register(fastifyCompress, { encodings: ['gzip', 'deflate'] });
   // await app.register(fastifyCompress, { brotliOptions: { params: { [constants.BROTLI_PARAM_QUALITY]: 4 } } });
   // TODO 注册 CSRF 保护插件
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await app.register(fastifyCsrf as any);
 
   // 注册 Helmet 安全中间件

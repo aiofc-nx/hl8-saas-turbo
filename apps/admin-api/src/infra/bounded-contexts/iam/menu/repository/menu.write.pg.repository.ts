@@ -30,7 +30,7 @@ export class MenuWritePostgresRepository implements MenuWriteRepoPort {
    * @returns Promise<void>
    */
   async save(menu: Menu): Promise<void> {
-    const { id, ...menuData } = menu; // 移除 id，让数据库自动生成
+    const { id: _id, ...menuData } = menu; // 移除 id，让数据库自动生成
     const newMenu = this.em.create('SysMenu', menuData);
     await this.em.persistAndFlush(newMenu);
   }

@@ -25,6 +25,7 @@ export class LoginLogReadRepository implements LoginLogReadRepoPort {
   async pageLoginLogs(
     query: PageLoginLogsQuery,
   ): Promise<PaginationResult<LoginLogProperties>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: FilterQuery<any> = {};
 
     if (query.username) {

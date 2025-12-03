@@ -47,6 +47,7 @@ export class UserWriteRepository implements UserWriteRepoPort {
   async deleteUserRoleByDomain(domain: string): Promise<void> {
     await this.em.transactional(async (em) => {
       const users = await em.find('SysUser', { domain }, { fields: ['id'] });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const userIds = users.map((user: any) => user.id);
 
       if (userIds.length === 0) {

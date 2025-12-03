@@ -23,6 +23,8 @@ import { PageUsersQuery } from '@/lib/bounded-contexts/iam/authentication/querie
 
 import { ApiResponseDoc } from '@hl8/decorators';
 import { ApiRes, PaginationResult } from '@hl8/rest';
+import type { IAuthentication } from '@hl8/typings';
+import type { FastifyRequest } from 'fastify';
 
 import { PageUsersDto } from '../dto/page-users.dto';
 import { UserCreateDto, UserUpdateDto } from '../dto/user.dto';
@@ -133,7 +135,7 @@ export class UserController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async createUser(
     @Body() dto: UserCreateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     await this.commandBus.execute(
       new UserCreateCommand(
@@ -182,7 +184,7 @@ export class UserController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async updateUser(
     @Body() dto: UserUpdateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     await this.commandBus.execute(
       new UserUpdateCommand(

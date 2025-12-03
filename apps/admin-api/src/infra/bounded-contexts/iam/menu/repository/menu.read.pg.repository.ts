@@ -41,6 +41,7 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
    * @returns Menu 属性或 null
    */
   async getMenuById(id: number): Promise<Readonly<MenuProperties> | null> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const menu = await this.em.findOne('SysMenu', { id } as FilterQuery<any>);
     return menu as Readonly<MenuProperties> | null;
   }
@@ -62,6 +63,7 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
       { fields: ['id'] },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const roleIds = roles.map((role: any) => role.id);
 
     if (roleIds.length === 0) {
@@ -74,6 +76,7 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
       { fields: ['menuId'] },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const menuIds = roleMenus.map((rm: any) => rm.menuId);
 
     if (menuIds.length > 0) {
@@ -104,6 +107,7 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
       { fields: ['menuId'] },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const menuIds = roleMenus.map((rm: any) => rm.menuId);
 
     if (menuIds.length > 0) {
@@ -137,6 +141,7 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
    * @returns Menu 树形属性列表
    */
   async findAll(): Promise<MenuTreeProperties[] | []> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const menus = await this.em.find('SysMenu', {} as FilterQuery<any>);
     return menus as MenuTreeProperties[];
   }
@@ -183,6 +188,7 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
       { fields: ['roleId'] },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const roleIds = userRoles.map((ur: any) => ur.roleId);
 
     if (roleIds.length === 0) {
@@ -195,6 +201,7 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
       { fields: ['menuId'] },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return roleMenus.map((rm: any) => rm.menuId);
   }
 
@@ -207,6 +214,7 @@ export class MenuReadPostgresRepository implements MenuReadRepoPort {
   async pageMenus(
     query: PageMenusQuery,
   ): Promise<PaginationResult<MenuProperties>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: FilterQuery<any> = {};
 
     if (query.menuName) {

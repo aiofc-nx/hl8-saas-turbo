@@ -22,6 +22,8 @@ import { PageAccessKeysQuery } from '@/lib/bounded-contexts/access-key/queries/p
 import { BUILT_IN } from '@/lib/shared/constants/db.constant';
 import { ApiResponseDoc } from '@hl8/decorators';
 import { ApiRes, PaginationResult } from '@hl8/rest';
+import type { IAuthentication } from '@hl8/typings';
+import type { FastifyRequest } from 'fastify';
 
 import { AccessKeyCreateDto } from '../dto/access_key.dto';
 import { PageAccessKeysQueryDto } from '../dto/page-access_key.dto';
@@ -83,7 +85,7 @@ export class AccessKeyController {
   @ApiResponseDoc({ type: AccessKeyReadModel, isPaged: true })
   async page(
     @Query() queryDto: PageAccessKeysQueryDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<PaginationResult<AccessKeyProperties>>> {
     const query = new PageAccessKeysQuery({
       current: queryDto.current,
@@ -129,11 +131,11 @@ export class AccessKeyController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async createAccessKey(
     @Body() dto: AccessKeyCreateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     await this.commandBus.execute(
       new AccessKeyCreateCommand(
-        req.user.domain === BUILT_IN ? dto.domain : req.user.domain,
+        req.user.domain === BUILT_IN ? (dto.domain ?? '') : req.user.domain,
         dto.description,
         req.user.uid,
       ),

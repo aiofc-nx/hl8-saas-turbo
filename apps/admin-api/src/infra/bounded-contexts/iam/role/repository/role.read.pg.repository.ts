@@ -29,6 +29,7 @@ export class RoleReadPostgresRepository implements RoleReadRepoPort {
       { fields: ['roleId'] },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const roleIds = userRoles.map((userRole: any) => userRole.roleId);
 
     if (roleIds.length === 0) {
@@ -41,6 +42,7 @@ export class RoleReadPostgresRepository implements RoleReadRepoPort {
       { fields: ['code'] },
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new Set(roles.map((role: any) => role.code));
   }
 
@@ -53,6 +55,7 @@ export class RoleReadPostgresRepository implements RoleReadRepoPort {
   async pageRoles(
     query: PageRolesQuery,
   ): Promise<PaginationResult<RoleProperties>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: FilterQuery<any> = {};
 
     if (query.code) {

@@ -22,6 +22,9 @@ import {
   Command,
   GalleryVerticalEnd,
   Menu,
+  Key,
+  Network,
+  FileCode,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -87,6 +90,27 @@ export const sidebarData: SidebarData = {
           title: 'Menus',
           url: '/menus',
           icon: Menu,
+        },
+        {
+          title: 'Casbin 权限管理',
+          icon: ShieldCheck,
+          items: [
+            {
+              title: '权限规则管理',
+              url: '/casbin-policies',
+              icon: Key,
+            },
+            {
+              title: '角色关系管理',
+              url: '/casbin-relations',
+              icon: Network,
+            },
+            {
+              title: '权限模型配置',
+              url: '/casbin-model',
+              icon: FileCode,
+            },
+          ],
         },
       ],
     },

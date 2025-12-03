@@ -22,6 +22,7 @@ import { CacheConstant } from '@hl8/constants';
 import { RedisUtility } from '@hl8/redis';
 import { ApiRes } from '@hl8/rest';
 import { IAuthentication } from '@hl8/typings';
+import type { FastifyRequest } from 'fastify';
 
 import { AssignPermissionDto } from '../dto/assign-permission.dto';
 import { AssignRouteDto } from '../dto/assign-route.dto';
@@ -188,7 +189,9 @@ export class AuthorizationController {
     description:
       'Retrieve user-specific routes based on their roles and domain.',
   })
-  async getUserRoutes(@Request() req: any): Promise<ApiRes<UserRoute>> {
+  async getUserRoutes(
+    @Request() req: FastifyRequest & { user: IAuthentication },
+  ): Promise<ApiRes<UserRoute>> {
     const user: IAuthentication = req.user;
     const userRoleCode = await RedisUtility.instance.smembers(
       `${CacheConstant.AUTH_TOKEN_PREFIX}${user.uid}`,

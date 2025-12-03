@@ -25,6 +25,7 @@ export class OperationLogReadRepository implements OperationLogReadRepoPort {
   async pageOperationLogs(
     query: PageOperationLogsQuery,
   ): Promise<PaginationResult<OperationLogProperties>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: FilterQuery<any> = {};
 
     if (query.username) {

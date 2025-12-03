@@ -63,12 +63,15 @@ export class OperationLog extends AggregateRoot {
   readonly userAgent: string;
 
   /** 请求参数，URL参数或查询参数 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly params: any;
 
   /** 请求体，POST/PUT请求的请求体数据 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly body: any;
 
   /** 响应数据，操作返回的响应内容 */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly response: any;
 
   /** 开始时间，操作开始执行的时间 */

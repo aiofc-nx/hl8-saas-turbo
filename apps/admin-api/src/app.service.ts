@@ -136,7 +136,7 @@ export class AppService {
   async getRedisInfo() {
     const redisClient = RedisUtility.instance;
     const info = await redisClient.info();
-    const redisInfo: any = {};
+    const redisInfo: Record<string, string> = {};
     const lines = info.split('\r\n');
     lines.forEach((line) => {
       if (line && !line.startsWith('#')) {

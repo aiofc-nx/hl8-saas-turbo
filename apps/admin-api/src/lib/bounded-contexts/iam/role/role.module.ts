@@ -8,6 +8,7 @@ import { QueryHandlers } from './application/query-handlers';
 export class RoleModule {
   static register(options: {
     inject: Provider[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     imports: any[];
   }): DynamicModule {
     return {

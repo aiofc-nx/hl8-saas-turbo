@@ -18,8 +18,11 @@ export type OperationLogEssentialProperties = Readonly<
     url: string;
     ip: string;
     userAgent: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     response: any;
     startTime: Date;
     endTime: Date;
@@ -105,16 +108,19 @@ export class OperationLogReadModel {
   @ApiProperty({
     description: 'Parameters used in the operation',
   })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: any;
 
   @ApiProperty({
     description: 'Body of the request used in the operation',
   })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
 
   @ApiProperty({
     description: 'Response returned from the operation',
   })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   response: any;
 
   @ApiProperty({

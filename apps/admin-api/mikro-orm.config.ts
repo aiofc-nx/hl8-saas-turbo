@@ -3,6 +3,8 @@ import { config } from 'dotenv';
 
 import { CasbinRule } from '@hl8/casbin';
 
+import { CasbinModelConfig } from './src/infra/entities/casbin-model-config.entity';
+
 // 加载 .env 文件
 config();
 
@@ -22,7 +24,7 @@ export default defineConfig({
   // 实体配置
   // 开发环境：使用 TypeScript 实体文件路径
   // 生产环境：使用编译后的 JavaScript 实体文件路径
-  entities: [CasbinRule],
+  entities: [CasbinRule, CasbinModelConfig],
   entitiesTs: [CasbinRule, 'src/infra/entities/**/*.entity.ts'],
   // 迁移配置
   migrations: {

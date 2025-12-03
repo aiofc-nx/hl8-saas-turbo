@@ -23,6 +23,8 @@ import { PageDomainsQuery } from '@/lib/bounded-contexts/iam/domain/queries/page
 
 import { ApiResponseDoc } from '@hl8/decorators';
 import { ApiRes, PaginationResult } from '@hl8/rest';
+import type { IAuthentication } from '@hl8/typings';
+import type { FastifyRequest } from 'fastify';
 
 import { DomainCreateDto, DomainUpdateDto } from '../dto/domain.dto';
 import { PageDomainsDto } from '../dto/page-domains.dto';
@@ -128,7 +130,7 @@ export class DomainController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async createDomain(
     @Body() dto: DomainCreateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     await this.commandBus.execute(
       new DomainCreateCommand(
@@ -173,7 +175,7 @@ export class DomainController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async updateDomain(
     @Body() dto: DomainUpdateDto,
-    @Request() req: any,
+    @Request() req: FastifyRequest & { user: IAuthentication },
   ): Promise<ApiRes<null>> {
     await this.commandBus.execute(
       new DomainUpdateCommand(

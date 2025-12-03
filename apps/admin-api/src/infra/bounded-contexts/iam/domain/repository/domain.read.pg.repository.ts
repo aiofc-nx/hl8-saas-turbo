@@ -53,6 +53,7 @@ export class DomainReadRepository implements DomainReadRepoPort {
   async pageDomains(
     query: PageDomainsQuery,
   ): Promise<PaginationResult<DomainProperties>> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: FilterQuery<any> = {};
 
     if (query.name) {
